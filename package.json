@@ -1,7 +1,7 @@
 {
-  "name": "boilermaker",
+  "name": "wikiLinkz",
   "version": "1.0.0",
-  "description": "Some boilerplate code to get you started - get shakin'!",
+  "description": "Compete in the Wikipedia game!",
   "engines": {
     "node": ">= 7.0.0"
   },
