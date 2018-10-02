@@ -1,5 +1,7 @@
-import * as Firebase from 'firebase'
+const Firebase = require('firebase')
 const credentials = require('./credentials')
 
-export const app = Firebase.initializeApp(credentials)
-export const db = app.database()
+const app = Firebase.initializeApp(credentials)
+const db = app.database()
+
+module.exports = { db, app }

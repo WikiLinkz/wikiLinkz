@@ -1,13 +1,13 @@
 import React from 'react'
 
-import {Navbar} from './components'
-import Routes from './routes'
+// import { Navbar } from './components'
+import Game from './Game'
 
 const App = () => {
   return (
     <div>
-      <Navbar />
-      <Routes />
+      {/* <Navbar /> */}
+      <Game />
     </div>
   )
 }
