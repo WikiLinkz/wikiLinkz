@@ -28,5 +28,15 @@ router.post('/', async (req, res, next) => {
   }
 })
 
+// router.get('./:gameId', (req, res, next) => {
+//   const gameId = req.params.gameId
+//   const gameRef = db.ref(`Games/${gameId}`)
+//   gameRef.on('value', async (snapshot) => {
+//     const data = snapshot.val()
+//     const title = underTitleize(data.start)
+//     const response = await axios.get(`https://en.wikipedia.org/api/rest_v1/page/html/${title}`)
+//     res.send({ start: data.start, target: data.target, html: response.data })
+//   })
+// })
 
 
