@@ -21,4 +21,8 @@ const titleize = (title) => {
   return title.split('_').join(' ')
 }
 
-module.exports = { getDate, getRandomNums, titleize }
+const underTitleize = (title) => {
+  return title.split(' ').join('_')
+}
+
+module.exports = { getDate, getRandomNums, titleize, underTitleize }

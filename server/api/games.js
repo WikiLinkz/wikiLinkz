@@ -28,16 +28,5 @@ router.post('/', async (req, res, next) => {
   }
 })
 
-// router.get('/:gameId', async (req, res, next) => {
-//   try {
-//     const gameId = req.params.gameId
-//     const gameRef = await db.ref(`Games/${gameId}`)
-//     console.log('GAME REF', gameRef)
-//     res.send(gameRef)
-//   } catch (err) {
-//     next(err)
-//   }
-// })
-
 
 
