@@ -1,10 +1,7 @@
 import React, { Component } from 'react'
 
 export default class LoginComplete extends Component {
-
-
   render() {
-    console.log('this.props', this.props)
     const { logout } = this.props
     const { displayName, email } = this.props.user
     return (
