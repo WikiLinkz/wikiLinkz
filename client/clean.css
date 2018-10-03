@@ -1,0 +1,34 @@
+/* wiki styles */
+.App {
+  margin: 8px;
+}
+
+p {
+  margin: 0.5em 0;
+  line-height: 1.5;
+}
+
+.infobox {
+  background-color: #f3f3f3 !important;
+}
+
+th, td {
+  padding: 8px !important;
+}
+
+/* hiding elements */
+#References, .reflist, .mw-ref, #Further_reading, .navbox, #External_links, #See_also, #section_SpokenWikipedia, #Notes {
+  display: none;
+}
+
+#Further_reading ~ div {
+  display: none;
+}
+
+#External_links ~ ul {
+  display: none;
+}
+
+table[role=presentation] {
+  display: none;
+}
