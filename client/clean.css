@@ -29,6 +29,18 @@ th, td {
   display: none;
 }
 
+#Published_works ~ ul {
+  display: none;
+}
+
+#See_also ~ ul {
+  display: none;
+}
+
+#References ~ ul {
+  display: none;
+}
+
 table[role=presentation] {
   display: none;
 }
