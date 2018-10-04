@@ -1,5 +1,9 @@
 import React, { Component } from 'react'
+import UserStats from './UserStats'
 import './leaderboard.css'
+
+// UserStats is getting stats from user local state
+// GameStats is the game data from Firebase
 
 export default class LeaderboardContainer extends Component {
   constructor() {
@@ -7,17 +11,12 @@ export default class LeaderboardContainer extends Component {
   }
 
   render() {
+    const { userStats } = this.props
     return (
       <div id='game-info-container-wrapper'>
         <div id='game-info-container'>
           <div id='game-info-container-fixed'>
-            <h3>Game Info</h3>
-            <h3>Time Remaining: :</h3>
-            <p>Start: </p>
-            <p>Target: </p>
-            <p>History: </p>
-            <p>Clicks: </p>
-            <p>Users:</p>
+            <UserStats userStats={userStats} />
             {/*map through users here*/}
             <ul>User1 (2)</ul>
             <ul>User2 (3)</ul>

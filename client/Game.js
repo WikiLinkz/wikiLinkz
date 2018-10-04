@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import './clean.css'
 import Login from './components/login/Login'
-import LeaderboardContainer from './components/leaderboard/LeaderBoardContainer';
+import LeaderboardContainer from './components/leaderboard/LeaderboardContainer';
 
 const dummyData = {
   isRunning: true,
@@ -42,13 +42,17 @@ export default class Game extends Component {
   constructor() {
     super()
     this.state = {
-      gameId: '',
-      start: '',
-      target: '',
+      // gameId: '',
+      // start: '',
+      // target: '',
       html: '',
-      history: [],
-      clicks: 0,
-      currentGame: {}
+      // history: [],
+      // clicks: 0,
+      currentGame: {},
+      userStats: {
+        clicks: 0,
+        history: []
+      }
     }
     this.generateGame = this.generateGame.bind(this)
     this.joinGame = this.joinGame.bind(this)
@@ -78,7 +82,7 @@ export default class Game extends Component {
   }
 
   render() {
-    const { currentGame } = this.state
+    const { currentGame, userStats } = this.state
     return (
       <div>
         <div id="game-container" style={{ padding: 25 }}>
@@ -95,7 +99,7 @@ export default class Game extends Component {
                   (this.state.html === '') ? null : <div className='wiki-article' onClick={this.handleClick} dangerouslySetInnerHTML={{ __html: this.state.html }} />
                 }
               </div>
-              <LeaderboardContainer currentGame={currentGame} />
+              <LeaderboardContainer currentGame={currentGame} userStats={userStats} />
             </div>
           </div>
         </div>
