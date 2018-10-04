@@ -86,10 +86,12 @@ export default class Game extends Component {
   async handleClick(evt) {
     evt.preventDefault()
     if (evt.target.tagName !== 'A') return
-
+    // update the database
+    const { gameId, userId, userStats } = this.state
     const title = underTitleize(evt.target.title)
-    const { gameId, userId } = this.state
-    const res = await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { title })
+    const res = await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { ...userStats, title })
+    const { html } = res.data
+    this.setState({ html })
   }
 
   render() {

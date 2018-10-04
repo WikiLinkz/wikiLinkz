@@ -69,7 +69,6 @@ router.get('/:gameId', (req, res, next) => {
     const data = snapshot.val()
     const title = underTitleize(data.start)
     const response = await axios.get(`https://en.wikipedia.org/api/rest_v1/page/html/${title}`)
-    console.log('HTML', response.data)
     res.send({ start: data.start, target: data.target, html: response.data })
   })
 })
@@ -78,17 +77,17 @@ router.get('/:gameId', (req, res, next) => {
 router.put('/:gameId/:userId', async (req, res, next) => {
   try {
     const { gameId, userId } = req.params
-    const { clicks, won } = req.body
+    const { clicks, won, title } = req.body
     await db.ref(`Games/${gameId}/clickInfo/${userId}`).update({
       clicks,
       won
     })
-    // const newGame = {}
-    // newGame[gameId] = true
-    // await db.ref(`Users/${userId}/gameHistory`).update({
-    //   ...newGame
-    // })
-    res.sendStatus(200)
+    if (title) {
+      const wikiRes = await axios.get(`https://en.wikipedia.org/api/rest_v1/page/html/${title}`)
+      res.send({ html: wikiRes.data })
+    } else {
+      res.sendStatus(200)
+    }
   } catch (err) {
     next(err)
   }
