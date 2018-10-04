@@ -22,16 +22,6 @@ export default class Login extends Component {
   }
 
   async login() {
-    // const res = await auth.signInWithPopup(googleProvider)
-    // const user = res.user
-    // this.setState({ user })
-    // // write usuer to database and get key
-    // const userId = await db.ref('/Users').push().key
-    // // take key and update userInfo
-    // await db.ref('/Users').child(userId).set({
-    //   userId,
-    //   email: user.email
-    // })
     const res = await auth.signInWithPopup(googleProvider)
     const user = res.user
     const usersRef = db.ref("/Users")
@@ -46,10 +36,8 @@ export default class Login extends Component {
         console.log("no record found - new user created");
       } else {
         console.log("record found - welcome back!");
-
       }
     });
-
     this.setState({ user })
   }
 
