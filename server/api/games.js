@@ -5,13 +5,21 @@ const axios = require('axios')
 module.exports = router
 
 router.get('/', async (req, res, next) => {
-  const ref = await db.ref('Games')
-  await ref.orderByChild('isRunning').equalTo(true).on('value', (snapshot) => {
-    const data = snapshot.val()
-    const gameId = Object.keys(data)[0]
-    const game = data[gameId]
-    res.send({ gameId, start: game.start, target: game.target })
-  })
+  try {
+    const ref = await db.ref('Games')
+    await ref.orderByChild('isRunning').equalTo(true).once('value', (snapshot) => {
+      const data = snapshot.val()
+      if (data) {
+        const gameId = Object.keys(data)[0]
+        const game = data[gameId]
+        res.send({ gameId, start: game.start, target: game.target })
+      } else {
+        res.sendStatus(200).end()
+      }
+    })
+  } catch (err) {
+    next(err)
+  }
 })
 
 router.post('/', async (req, res, next) => {
@@ -26,7 +34,6 @@ router.post('/', async (req, res, next) => {
     const target = titleize(articles[randomNums[1]].article)
     //Create a new game instance in Firebase
     const newGameId = await db.ref('Games/').push().key
-    console.log('KEY', newGameId)
     await db.ref('Games/' + newGameId).set({
       gameId: newGameId,
       start: start,
@@ -35,7 +42,6 @@ router.post('/', async (req, res, next) => {
       players: true,
       clickInfo: true
     })
-    console.log('NEW GAME CREATED')
     res.send({ newGameId, start, target })
   } catch (err) {
     next(err)
@@ -45,10 +51,8 @@ router.post('/', async (req, res, next) => {
 router.put('/', async (req, res, next) => {
   try {
     const gameId = req.body.gameId
-    console.log('ARE WE HEEEEAH BEFORE TURNING FALSE???')
     await db.ref(`Games/${gameId}`).update({ isRunning: false })
-    console.log('ARE WE STILL HERE AFTER SETTING FALSE')
-    res.sendStatus(418)
+    res.sendStatus(200)
   } catch (err) {
     next(err)
   }
