@@ -4,17 +4,20 @@ import { underTitleize } from '../server/api/utils'
 import './clean.css'
 import Login from './components/login/Login'
 
+if (process.env.NODE_ENV !== 'production') require('../server/db/credentials')
+
 export default class Game extends Component {
   constructor() {
     super()
     this.state = {
       gameId: '',
-      userId: '',
+      userId: 'pEOiFYGeJUOQd0awWTzRRC6Dpvy2',
       start: '',
       target: '',
       html: '',
       history: [],
       clicks: 0,
+      won: false,
       isRunning: true
     }
     this.generateGame = this.generateGame.bind(this)
@@ -23,8 +26,7 @@ export default class Game extends Component {
 
   async componentDidMount() {
     try {
-      console.log('WE ARE IN COMPONENT DID MOUNT AGAIN')
-      const res = await axios.get('/api/games')
+      const res = await axios.get(`${process.env.HOST}/api/games`)
       const { gameId, start, target } = res.data
       this.setState({ gameId, start, target })
     } catch (err) { console.log('Error getting the current game', err) }
@@ -34,9 +36,9 @@ export default class Game extends Component {
     try {
       console.log('IN GENERATE GAME')
       const gameId = this.state.gameId
-      await axios.put('/api/games', { gameId })
+      await axios.put(`${process.env.HOST}/api/games`, { gameId })
       console.log('DID WE SURVIVE THE PUT?? ENTERING POST ROUTE')
-      const res = await axios.post('/api/games')
+      const res = await axios.post(`${process.env.HOST}/api/games`)
       const { newGameId, start, target } = res.data
       console.log('NEW GAME CREATED')
       this.setState({ gameId: newGameId, start, target })
@@ -45,7 +47,10 @@ export default class Game extends Component {
 
   async joinGame() {
     try {
-      const res = await axios.get(`/api/games/${this.state.gameId}`)
+      const { userId, gameId, clicks, won } = this.state
+      await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { clicks, won })
+      await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
+      const res = await axios.get(`${process.env.HOST}/api/games/${gameId}`)
       const { start, target, html } = res.data
       this.setState({ start, target, html, history: [...this.state.history, start] })
     } catch (error) { console.log('Error JOINING the game', error) }
@@ -57,7 +62,7 @@ export default class Game extends Component {
 
     const title = underTitleize(evt.target.title)
     const { gameId, userId } = this.state
-    const res = await axios.put(`/api/games/${gameId}/${userId}`, { title })
+    const res = await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { title })
     // const res = await axios.get(`https://en.wikipedia.org/api/rest_v1/page/html/${this.state.title}`)
     // this.setState({ html: res.data })
     // console.log('clicked title: ', title, 'target title: ', this.state.target)
