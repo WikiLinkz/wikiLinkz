@@ -69,11 +69,20 @@ router.get('/:gameId', (req, res, next) => {
   })
 })
 
-// router.put('/:gameId/:userId', async (req, res, next) => {
-//   const { gameId, userId } = req.params
-//   await db.ref(`Games/${gameId}/clickInfo/${userId}`).set({
-
-//   })
-
-// })
-
+router.put('/:gameId/:userId', async (req, res, next) => {
+  try {
+    const { gameId, userId } = req.params
+    await db.ref(`Games/${gameId}/clickInfo/${userId}`).set({
+      clicks: 0,
+      won: false
+    })
+    const newGame = {}
+    newGame[gameId] = true
+    await db.ref(`Users/${userId}/gameHistory`).update({
+      ...newGame
+    })
+    res.sendStatus(200)
+  } catch (err) {
+    next(err)
+  }
+})

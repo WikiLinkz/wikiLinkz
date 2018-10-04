@@ -9,7 +9,7 @@ export default class Game extends Component {
     super()
     this.state = {
       gameId: '',
-      userId: '',
+      userId: 'pEOiFYGeJUOQd0awWTzRRC6Dpvy2',
       start: '',
       target: '',
       html: '',
@@ -45,7 +45,9 @@ export default class Game extends Component {
 
   async joinGame() {
     try {
-      const res = await axios.get(`/api/games/${this.state.gameId}`)
+      const { userId, gameId } = this.state
+      await axios.put(`api/games/${gameId}/${userId}`)
+      const res = await axios.get(`/api/games/${gameId}`)
       const { start, target, html } = res.data
       this.setState({ start, target, html, history: [...this.state.history, start] })
     } catch (error) { console.log('Error JOINING the game', error) }
