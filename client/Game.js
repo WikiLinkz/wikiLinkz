@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import './clean.css'
+import Login from './components/login/Login'
 
 export default class Game extends Component {
   constructor() {
@@ -40,6 +41,7 @@ export default class Game extends Component {
           <header className="game-header">
             <h1 className="game-title">WikiLinks Game</h1>
           </header>
+          <Login />
           <div>
             <button onClick={this.generateGame}>Generate Game</button>
             <button onClick={this.joinGame}>Join Game</button>
