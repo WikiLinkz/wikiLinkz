@@ -17,7 +17,7 @@ th, td {
 }
 
 /* hiding elements */
-#References, .reflist, .mw-ref, #Further_reading, .navbox, #External_links, #See_also, #section_SpokenWikipedia, #Notes {
+#References, .reflist, .mw-ref, #Further_reading, .navbox, #External_links, #See_also, #section_SpokenWikipedia, #Notes, .mw-reflink-text {
   display: none;
 }
 
