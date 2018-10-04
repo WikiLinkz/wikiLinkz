@@ -5,34 +5,6 @@ import './clean.css'
 import Login from './components/login/Login'
 import LeaderboardContainer from './components/leaderboard/LeaderboardContainer';
 
-// const dummyData = {
-//   isRunning: true,
-//   start: 'Instagram',
-//   target: 'Tesla, Inc.',
-//   clickInfo: {
-//     userName1: {
-//       clickNum: 0,
-//       score: 0,
-//       won: false
-//     },
-//     userName2: {
-//       clickNum: 0,
-//       score: 0,
-//       won: false
-//     },
-//     userName3: {
-//       clickNum: 0,
-//       score: 0,
-//       won: false
-//     },
-//     userName4: {
-//       clickNum: 0,
-//       score: 0,
-//       won: false
-//     }
-//   }
-// }
-
 export default class Game extends Component {
   constructor() {
     super()
@@ -91,7 +63,7 @@ export default class Game extends Component {
     try {
       const res = await axios.get(`/api/games/${this.state.gameId}`)
       const { start, target, html } = res.data
-      this.setState({ start, target, html, history: [...this.state.history, start] })
+      this.setState({ start, target, html })
     } catch (error) { console.log('Error JOINING the game', error) }
   }
 

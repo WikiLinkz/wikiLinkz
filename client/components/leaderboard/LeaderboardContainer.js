@@ -14,7 +14,11 @@ export default class LeaderboardContainer extends Component {
         <div id='game-info-container'>
           <div id='game-info-container-fixed'>
             <UserStats userStats={userStats} start={start} target={target} />
-            <GameStats gameId={gameId} />
+            {
+              gameId
+                ? <GameStats gameId={gameId} />
+                : null
+            }
           </div>
         </div>
       </div>
