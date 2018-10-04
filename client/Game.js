@@ -4,6 +4,40 @@ import './clean.css'
 import Login from './components/login/Login'
 import LeaderboardContainer from './components/leaderboard/LeaderBoardContainer';
 
+const dummyData = {
+  isRunning: true,
+  start: 'Instagram',
+  target: 'Tesla, Inc.',
+  // players: {
+  //   0: 'email1',
+  //   1: 'email2',
+  //   2: 'email3',
+  //   3: 'email4',
+  // },
+  clickInfo: {
+    userName1: {
+      clickNum: 0,
+      score: 0,
+      won: false
+    },
+    userName2: {
+      clickNum: 0,
+      score: 0,
+      won: false
+    },
+    userName3: {
+      clickNum: 0,
+      score: 0,
+      won: false
+    },
+    userName4: {
+      clickNum: 0,
+      score: 0,
+      won: false
+    }
+  }
+}
+
 export default class Game extends Component {
   constructor() {
     super()
@@ -13,10 +47,18 @@ export default class Game extends Component {
       target: '',
       html: '',
       history: [],
-      clicks: 0
+      clicks: 0,
+      currentGame: {}
     }
     this.generateGame = this.generateGame.bind(this)
     this.joinGame = this.joinGame.bind(this)
+  }
+
+  // testing
+  componentDidMount() {
+    this.setState({
+      currentGame: dummyData
+    })
   }
 
   async generateGame() {
@@ -36,6 +78,7 @@ export default class Game extends Component {
   }
 
   render() {
+    const { currentGame } = this.state
     return (
       <div>
         <div id="game-container" style={{ padding: 25 }}>
@@ -52,7 +95,7 @@ export default class Game extends Component {
                   (this.state.html === '') ? null : <div className='wiki-article' onClick={this.handleClick} dangerouslySetInnerHTML={{ __html: this.state.html }} />
                 }
               </div>
-              <LeaderboardContainer />
+              <LeaderboardContainer currentGame={currentGame} />
             </div>
           </div>
         </div>

@@ -4,9 +4,6 @@ import './leaderboard.css'
 export default class LeaderboardContainer extends Component {
   constructor() {
     super()
-    this.state = {
-      currentGame: {}
-    }
   }
 
   render() {
