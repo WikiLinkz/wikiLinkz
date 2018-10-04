@@ -20,9 +20,16 @@ export default class Game extends Component {
       },
       isRunning: true
     }
+
+    this.setUser = this.setUser.bind(this)
+    this.handleClick = this.handleClick.bind(this)
     this.testClicks = this.testClicks.bind(this)
     this.generateGame = this.generateGame.bind(this)
     this.joinGame = this.joinGame.bind(this)
+  }
+
+  setUser(userId) {
+    this.setState({ userId })
   }
 
   testClicks() {
@@ -88,7 +95,7 @@ export default class Game extends Component {
           <header className="game-header">
             <h1 className="game-title">WikiLinks Game</h1>
           </header>
-          <Login />
+          <Login setUser={this.setUser} />
           <button type="button" onClick={this.testClicks}>Test Clicks</button>
           <div>
             <button onClick={this.generateGame}>Generate Game</button>

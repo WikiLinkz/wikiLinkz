@@ -70,10 +70,6 @@ router.get('/:gameId', (req, res, next) => {
 })
 
 // router.put('/:gameId/:userId', async (req, res, next) => {
-//   const { gameId, userId } = req.params
-//   await db.ref(`Games/${gameId}/clickInfo/${userId}`).set({
-
-//   })
 
 // })
 

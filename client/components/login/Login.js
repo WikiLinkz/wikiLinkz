@@ -35,6 +35,11 @@ export default class Login extends Component {
           })
         }
       });
+
+      // set userId on Game.js
+      this.props.setUser(uid)
+
+      // set local state user
       this.setState({ user })
     } catch (err) {
       console.log('Error logging in', err)
