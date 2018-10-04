@@ -12,6 +12,8 @@ export default class GameStats extends Component {
 
   async componentDidMount() {
     const { gameId } = this.props
+
+    // move this to server/api
     const gameRef = await db.ref('Games/' + gameId)
     gameRef.on('value', snapshot => {
       console.log('snapshot', snapshot.val())
@@ -22,7 +24,6 @@ export default class GameStats extends Component {
   }
 
   render() {
-    console.log('players', this.state.players)
     const { players, clickInfo } = this.state
     return (
       <div id="leaders">
@@ -32,7 +33,7 @@ export default class GameStats extends Component {
             players.map(player => {
               const clicks = clickInfo[player].clicks
               return (
-                <div key="player" id="player-single">
+                <div key={player} id="player-single">
                   <p>Name: {player}</p>
                   <p>Clicks: {clicks}</p>
                 </div>

@@ -3,7 +3,9 @@ import axios from 'axios'
 import { underTitleize } from '../server/api/utils'
 import './clean.css'
 import Login from './components/login/Login'
-import LeaderboardContainer from './components/leaderboard/LeaderboardContainer';
+import LeaderboardContainer from './components/leaderboard/LeaderboardContainer'
+import { db } from '../server/db/config'
+
 
 if (process.env.NODE_ENV !== 'production') require('../server/db/credentials')
 
@@ -12,7 +14,7 @@ export default class Game extends Component {
     super()
     this.state = {
       gameId: '',
-      userId: 'pEOiFYGeJUOQd0awWTzRRC6Dpvy2',
+      userId: '',
       start: '',
       target: '',
       html: '',
@@ -24,15 +26,10 @@ export default class Game extends Component {
       isRunning: true
     }
 
-    this.setUser = this.setUser.bind(this)
     this.handleClick = this.handleClick.bind(this)
     this.testClicks = this.testClicks.bind(this)
     this.generateGame = this.generateGame.bind(this)
     this.joinGame = this.joinGame.bind(this)
-  }
-
-  setUser(userId) {
-    this.setState({ userId })
   }
 
   testClicks() {
@@ -63,6 +60,7 @@ export default class Game extends Component {
       console.log('DID WE SURVIVE THE PUT?? ENTERING POST ROUTE')
       const res = await axios.post(`${process.env.HOST}/api/games`)
       const { newGameId, start, target } = res.data
+      console.log('start / target', start, target)
       console.log('NEW GAME CREATED')
       this.setState({ gameId: newGameId, start, target })
     } catch (err) { console.log('Error CREATING the game', err) }
@@ -94,13 +92,14 @@ export default class Game extends Component {
 
   render() {
     const { userStats, gameId, start, target } = this.state
+    console.log('userId', this.state.userId)
     return (
       <div>
         <div id="game-container" style={{ padding: 25 }}>
           <header className="game-header">
             <h1 className="game-title">WikiLinks Game</h1>
           </header>
-          <Login setUser={this.setUser} />
+          <Login />
           <button type="button" onClick={this.testClicks}>Test Clicks</button>
           <div>
             <button onClick={this.generateGame}>Generate Game</button>
