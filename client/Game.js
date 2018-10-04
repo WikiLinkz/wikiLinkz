@@ -5,39 +5,33 @@ import './clean.css'
 import Login from './components/login/Login'
 import LeaderboardContainer from './components/leaderboard/LeaderboardContainer';
 
-const dummyData = {
-  isRunning: true,
-  start: 'Instagram',
-  target: 'Tesla, Inc.',
-  // players: {
-  //   0: 'email1',
-  //   1: 'email2',
-  //   2: 'email3',
-  //   3: 'email4',
-  // },
-  clickInfo: {
-    userName1: {
-      clickNum: 0,
-      score: 0,
-      won: false
-    },
-    userName2: {
-      clickNum: 0,
-      score: 0,
-      won: false
-    },
-    userName3: {
-      clickNum: 0,
-      score: 0,
-      won: false
-    },
-    userName4: {
-      clickNum: 0,
-      score: 0,
-      won: false
-    }
-  }
-}
+// const dummyData = {
+//   isRunning: true,
+//   start: 'Instagram',
+//   target: 'Tesla, Inc.',
+//   clickInfo: {
+//     userName1: {
+//       clickNum: 0,
+//       score: 0,
+//       won: false
+//     },
+//     userName2: {
+//       clickNum: 0,
+//       score: 0,
+//       won: false
+//     },
+//     userName3: {
+//       clickNum: 0,
+//       score: 0,
+//       won: false
+//     },
+//     userName4: {
+//       clickNum: 0,
+//       score: 0,
+//       won: false
+//     }
+//   }
+// }
 
 export default class Game extends Component {
   constructor() {
@@ -48,12 +42,27 @@ export default class Game extends Component {
       start: '',
       target: '',
       html: '',
-      history: [],
-      clicks: 0,
+      userStats: {
+        history: [],
+        clicks: 0,
+      },
       isRunning: true
     }
+    this.testClicks = this.testClicks.bind(this)
     this.generateGame = this.generateGame.bind(this)
     this.joinGame = this.joinGame.bind(this)
+  }
+
+  testClicks() {
+    const title = 'title'
+    const clickNum = this.state.userStats.clicks
+    const history = this.state.userStats.history
+    this.setState({
+      userStats: {
+        clicks: clickNum + 1,
+        history: [...history, title]
+      }
+    })
   }
 
   async componentDidMount() {
@@ -100,7 +109,7 @@ export default class Game extends Component {
   }
 
   render() {
-    const { currentGame, userStats } = this.state
+    const { userStats, gameId, start, target } = this.state
     return (
       <div>
         <div id="game-container" style={{ padding: 25 }}>
@@ -108,6 +117,7 @@ export default class Game extends Component {
             <h1 className="game-title">WikiLinks Game</h1>
           </header>
           <Login />
+          <button type="button" onClick={this.testClicks}>Test Clicks</button>
           <div>
             <button onClick={this.generateGame}>Generate Game</button>
             <button onClick={this.joinGame}>Join Game</button>
@@ -117,7 +127,7 @@ export default class Game extends Component {
                   (this.state.html === '') ? null : <div className='wiki-article' onClick={this.handleClick} dangerouslySetInnerHTML={{ __html: this.state.html }} />
                 }
               </div>
-              <LeaderboardContainer currentGame={currentGame} userStats={userStats} />
+              <LeaderboardContainer gameId={gameId} userStats={userStats} start={start} target={target} />
             </div>
           </div>
         </div>
