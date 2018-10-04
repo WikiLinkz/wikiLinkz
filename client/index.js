@@ -6,9 +6,6 @@ import ReactDOM from 'react-dom'
 // import store from './store'
 import App from './App'
 
-// establishes socket connection
-import './socket'
-
 ReactDOM.render(
   // <Provider store={store}>
   //   <Router history={history}>
