@@ -4,8 +4,7 @@ import { underTitleize } from '../server/api/utils'
 import './clean.css'
 import Login from './components/login/Login'
 import LeaderboardContainer from './components/leaderboard/LeaderboardContainer'
-import { db } from '../server/db/config'
-
+import { auth } from '../server/db/config'
 
 if (process.env.NODE_ENV !== 'production') require('../server/db/credentials')
 
@@ -48,20 +47,27 @@ export default class Game extends Component {
     try {
       const res = await axios.get(`${process.env.HOST}/api/games`)
       const { gameId, start, target } = res.data
-      this.setState({ gameId, start, target })
+
+      // check if a user is logged in
+      let userId
+      await auth.onAuthStateChanged(user => {
+        if (user) {
+          userId = user.uid
+          this.setState({ gameId, start, target, userId })
+        } else {
+          userId = null
+          this.setState({ gameId, start, target, userId })
+        }
+      })
     } catch (err) { console.log('Error getting the current game', err) }
   }
 
   async generateGame() {
     try {
-      console.log('IN GENERATE GAME')
       const gameId = this.state.gameId
       await axios.put(`${process.env.HOST}/api/games`, { gameId })
-      console.log('DID WE SURVIVE THE PUT?? ENTERING POST ROUTE')
       const res = await axios.post(`${process.env.HOST}/api/games`)
       const { newGameId, start, target } = res.data
-      console.log('start / target', start, target)
-      console.log('NEW GAME CREATED')
       this.setState({ gameId: newGameId, start, target })
     } catch (err) { console.log('Error CREATING the game', err) }
   }
@@ -84,15 +90,10 @@ export default class Game extends Component {
     const title = underTitleize(evt.target.title)
     const { gameId, userId } = this.state
     const res = await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { title })
-    // const res = await axios.get(`https://en.wikipedia.org/api/rest_v1/page/html/${this.state.title}`)
-    // this.setState({ html: res.data })
-    // console.log('clicked title: ', title, 'target title: ', this.state.target)
-    // if (title === this.state.target) { alert('DAAAAAMN!') }
   }
 
   render() {
     const { userStats, gameId, start, target } = this.state
-    console.log('userId', this.state.userId)
     return (
       <div>
         <div id="game-container" style={{ padding: 25 }}>
