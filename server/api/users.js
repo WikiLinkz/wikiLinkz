@@ -1,16 +1,18 @@
 const router = require('express').Router()
-// const {User} = require('../db/models')
+const { db } = require('../db/config')
+const axios = require('axios')
 module.exports = router
 
-router.get('/', async (req, res, next) => {
+// creates a new player in the current game with player game info and adds the game to user's history, called from join a game
+router.put('/:userId/:gameId', async (req, res, next) => {
   try {
-    // const users = await User.findAll({
-    //   // explicitly select only the id and email fields - even though
-    //   // users' passwords are encrypted, it won't help if we just
-    //   // send everything to anyone who asks!
-    //   attributes: ['id', 'email']
-    // })
-    // res.json(users)
+    const { gameId, userId } = req.params
+    const newGame = {}
+    newGame[gameId] = true
+    await db.ref(`Users/${userId}/gameHistory`).update({
+      ...newGame
+    })
+    res.sendStatus(200)
   } catch (err) {
     next(err)
   }
