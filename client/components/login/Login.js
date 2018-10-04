@@ -22,23 +22,23 @@ export default class Login extends Component {
   }
 
   async login() {
-    const res = await auth.signInWithPopup(googleProvider)
-    const user = res.user
-    const usersRef = db.ref("/Users")
-    const uid = user.uid
-    db.ref("/Users").child(uid).once("value", function (snapshot) {
-      console.log(snapshot.val())
-      if (snapshot.val() === null) {
-        usersRef.child(uid).set({
-          userId: uid,
-          email: user.email
-        })
-        console.log("no record found - new user created");
-      } else {
-        console.log("record found - welcome back!");
-      }
-    });
-    this.setState({ user })
+    try {
+      const res = await auth.signInWithPopup(googleProvider)
+      const user = res.user
+      const usersRef = db.ref("/Users")
+      const uid = user.uid
+      db.ref("/Users").child(uid).once("value", function (snapshot) {
+        if (snapshot.val() === null) {
+          usersRef.child(uid).set({
+            userId: uid,
+            email: user.email
+          })
+        }
+      });
+      this.setState({ user })
+    } catch (err) {
+      console.log('Error logging in', err)
+    }
   }
 
 
