@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import './clean.css'
 import Login from './components/login/Login'
+import LeaderboardContainer from './components/leaderboard/LeaderBoardContainer';
 
 export default class Game extends Component {
   constructor() {
@@ -51,22 +52,7 @@ export default class Game extends Component {
                   (this.state.html === '') ? null : <div className='wiki-article' onClick={this.handleClick} dangerouslySetInnerHTML={{ __html: this.state.html }} />
                 }
               </div>
-              <div className='game-info-container-wrapper' style={{ flex: '1', display: 'flex', flexDirection: 'column', backgroundColor: 'lightgrey' }}>
-                <div className='game-info-container' style={{ flex: '1', padding: 20 }}>
-                  <div className='game-info-container-fixed' style={{ flex: '1' }}>
-                    <h3 style={{ textAlign: 'center', }}>Game Info</h3>
-                    {/* <h3 style={{ textAlign: 'center', }}>Time Remaining: {this.state.time.m}:{this.state.time.s}</h3> */}
-                    <p>Start: {this.state.start}</p>
-                    <p>Target: {this.state.target}</p>
-                    <p>History: {this.state.history}</p>
-                    <p>Clicks: {this.state.clicks}</p>
-                    <p>Users:</p>
-                    {/*map through users here*/}
-                    <ul>User1 (2)</ul>
-                    <ul>User2 (3)</ul>
-                  </div>
-                </div>
-              </div>
+              <LeaderboardContainer />
             </div>
           </div>
         </div>

@@ -1,0 +1,19 @@
+#game-info-container-wrapper {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  background-color: lightgray;
+}
+
+#game-info-container {
+  flex: 1;
+  padding: 20px;
+}
+
+#game-info-container-fixed {
+  flex: 1;
+}
+
+h3 {
+  text-align: center;
+}
