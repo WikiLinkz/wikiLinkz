@@ -1,5 +1,4 @@
 const router = require('express').Router()
-const { underTitleize } = require('./utils')
 const { db } = require('../db/config')
 const axios = require('axios')
 module.exports = router
