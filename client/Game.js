@@ -47,7 +47,6 @@ export default class Game extends Component {
       // find the current game
       const res = await axios.get(`${process.env.HOST}/api/games`)
       const { gameId, start, target } = res.data
-
       // check if a user is logged in
       let userId
       await auth.onAuthStateChanged(user => {
@@ -88,11 +87,21 @@ export default class Game extends Component {
       await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
       // get current game
       const res = await axios.get(`${process.env.HOST}/api/games/${gameId}`)
-      const { start, target } = res.data
+      let { start, target } = res.data
       // get start html
+      start = underTitleize(start)
       const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${start}`)
       const html = wikiRes.data
-      this.setState({ start, target, html, history: [...userStats.history, start] })
+      const { history } = this.state.userStats
+      this.setState({
+        start,
+        target,
+        html,
+        userStats: {
+          ...userStats,
+          history: [...history, start]
+        }
+      })
     } catch (error) { console.log('Error JOINING the game', error) }
   }
 
