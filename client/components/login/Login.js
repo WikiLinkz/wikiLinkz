@@ -41,7 +41,6 @@ export default class Login extends Component {
     }
   }
 
-
   async logout() {
     await auth.signOut()
     this.setState({ user: null })
