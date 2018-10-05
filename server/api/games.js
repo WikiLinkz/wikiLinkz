@@ -70,7 +70,7 @@ router.get('/:gameId', (req, res, next) => {
 router.put('/:gameId/:userId', async (req, res, next) => {
   try {
     const { gameId, userId } = req.params
-    const { clicks, won, title } = req.body
+    const { clicks, won } = req.body
     await db.ref(`Games/${gameId}/clickInfo/${userId}`).update({
       clicks,
       won

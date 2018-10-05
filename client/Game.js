@@ -25,22 +25,19 @@ export default class Game extends Component {
       isRunning: true
     }
 
-    this.updateStats = this.updateStats.bind(this)
+    this.updateLocalStats = this.updateLocalStats.bind(this)
     this.handleClick = this.handleClick.bind(this)
-    this.testClicks = this.testClicks.bind(this)
     this.generateGame = this.generateGame.bind(this)
     this.joinGame = this.joinGame.bind(this)
     this.handleClick = this.handleClick.bind(this)
   }
 
-  testClicks() {
-    const title = 'title'
-    const clickNum = this.state.userStats.clicks
-    const history = this.state.userStats.history
+  updateLocalStats(newStats) {
     this.setState({
       userStats: {
-        clicks: clickNum + 1,
-        history: [...history, title]
+        clicks: newStats.updatedClicks,
+        history: newStats.updatedHistory,
+        won: newStats.updatedWon
       }
     })
   }
@@ -56,9 +53,11 @@ export default class Game extends Component {
       await auth.onAuthStateChanged(user => {
         if (user) {
           userId = user.uid
+          console.log('User logged in')
           this.setState({ gameId, start, target, userId })
         } else {
           userId = null
+          console.log('User NOT logged in')
           this.setState({ gameId, start, target, userId })
         }
       })
@@ -83,8 +82,8 @@ export default class Game extends Component {
   async joinGame() {
     try {
       // create player instance on the current game
-      const { userId, gameId, clicks, won } = this.state
-      await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { clicks, won })
+      const { userId, gameId, userStats } = this.state
+      await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { ...userStats })
       // add current game's id to user's game history
       await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
       // get current game
@@ -93,30 +92,35 @@ export default class Game extends Component {
       // get start html
       const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${start}`)
       const html = wikiRes.data
-      this.setState({ start, target, html, history: [...this.state.history, start] })
+      this.setState({ start, target, html, history: [...userStats.history, start] })
     } catch (error) { console.log('Error JOINING the game', error) }
   }
 
   async handleClick(evt) {
     evt.preventDefault()
     if (evt.target.tagName !== 'A') return
-    // update click count, history
-    const clicks = this.state.clicks + 1
-    const history = [...this.state.history, evt.target.title]
+    const { clicks, history } = this.state.userStats
     // check if player won
-    const { won } = this.state
-    if (title === this.state.target) { won = true }
+    let { won } = this.state.userStats
+    if (evt.target.title === this.state.target) { won = true }
+    // update click count, history
+    const updatedStats = {
+      updatedClicks: clicks + 1,
+      updatedHistory: [...history, evt.target.title],
+      updatedWon: won
+    }
+    this.updateLocalStats(updatedStats)
     // fetch new article
     const title = underTitleize(evt.target.title)
     const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${title}`)
-    await this.setState({ html: wikiRes.data, history, clicks, won })
+    await this.setState({ html: wikiRes.data })
     // update player's db instance
-    const { gameId, userId } = this.state
-    await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { clicks, won })
+    const { gameId, userId, userStats } = this.state
+    await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { ...userStats })
   }
 
   render() {
-    const { start, target, html, history, clicks, won } = this.state
+    const { start, target, html, userStats, gameId } = this.state
 
     return (
       <div>
@@ -145,31 +149,7 @@ export default class Game extends Component {
                 />
               }
             </div>
-            <div
-              className='game-info-container-wrapper'
-              style={{ flex: '1', display: 'flex', flexDirection: 'column', backgroundColor: 'lightgrey' }}
-            >
-              <div
-                className='game-info-container'
-                style={{ flex: '1', padding: 20 }}
-              >
-                <div className='game-info-container-fixed' style={{ flex: '1' }}>
-                  {won ?
-                    <h3 style={{ textAlign: 'center', color: 'red' }}>YOU HAVE WON!!</h3> :
-                    <h3 style={{ textAlign: 'center' }}>'Game Info'</h3>
-                  }
-                  {/* <h3 style={{ textAlign: 'center', }}>Time Remaining: {this.state.time.m}:{this.state.time.s}</h3> */}
-                  <p>Start: {start}</p>
-                  <p>Target: {target}</p>
-                  <p>History: {history.join(', ')}</p>
-                  <p>Clicks: {clicks}</p>
-                  <p>Users:</p>
-                  {/*map through users here*/}
-                  <ul>User1 (2)</ul>
-                  <ul>User2 (3)</ul>
-                </div>
-              </div>
-            </div>
+            <LeaderboardContainer gameId={gameId} userStats={userStats} start={start} target={target} />
           </div>
         </div>
       </div >
