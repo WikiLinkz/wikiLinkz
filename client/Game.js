@@ -29,7 +29,6 @@ export default class Game extends Component {
     this.handleClick = this.handleClick.bind(this)
     this.generateGame = this.generateGame.bind(this)
     this.joinGame = this.joinGame.bind(this)
-    this.handleClick = this.handleClick.bind(this)
   }
 
   updateLocalStats(newStats) {
