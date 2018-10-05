@@ -73,7 +73,14 @@ export default class Game extends Component {
       // create a new game
       const res = await axios.post(`${process.env.HOST}/api/games`, { start, target })
       const { newGameId } = res.data
-      this.setState({ gameId: newGameId, start, target })
+      const newUserInfo = { clicks: 0, history: [], won: false }
+      this.setState({
+        gameId: newGameId,
+        start,
+        target,
+        html: '',
+        userStats: newUserInfo
+      })
     } catch (err) { console.log('Error CREATING the game', err) }
   }
 
