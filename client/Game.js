@@ -137,7 +137,7 @@ export default class Game extends Component {
   // global game functions
   async generateGlobalGame() {
     try {
-      const res = await axios.post('http://localhost:8080/api/globalGame/')
+      const res = await axios.post(`${process.env.HOST}/api/globalGame/`)
       const { newGameId, start, target, error } = res.data
       if (error === 'Global Game Already Running!') {
         alert('Global Game Already Running')
@@ -148,7 +148,7 @@ export default class Game extends Component {
 
   async joinGlobalGame() {
     try {
-      const res = await axios.get(`http://localhost:8080/api/globalGame/`)
+      const res = await axios.get(`${process.env.HOST}/api/globalGame/`)
       const { start, target, html, error } = res.data
       if (error === 'No game running!') {
         alert('No Global Game Running!')
@@ -181,7 +181,7 @@ export default class Game extends Component {
 
   async stopGlobalGame() {
     try {
-      await axios.put('http://localhost:8080/api/globalGame/stopGlobalGame')
+      await axios.put(`${process.env.HOST}/api/globalGame/stopGlobalGame`)
       await this.setState(defaultState)
     } catch (error) { console.log('Error STOPPING the global game', error) }
   }
