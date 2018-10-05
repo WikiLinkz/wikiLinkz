@@ -24,8 +24,8 @@ router.get('/', async (req, res, next) => {
 router.get('/:title', async (req, res, next) => {
   try {
     const title = underTitleize(req.params.title)
-    console.log('TITLE', title)
-    const response = await axios.get(`https://en.wikipedia.org/api/rest_v1/page/html/${title}`)
+    const response = await axios.get
+      (`https://en.wikipedia.org/api/rest_v1/page/html/${title}`)
     res.send(response.data)
   } catch (err) {
     next(err)

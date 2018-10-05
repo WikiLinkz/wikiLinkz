@@ -1,14 +1,13 @@
 const router = require('express').Router()
 const { db } = require('../db/config')
-const axios = require('axios')
 module.exports = router
 
 //finds a game where isRunning is true and returns it, called by component did mount
 router.get('/', async (req, res, next) => {
   try {
     const ref = await db.ref('Games')
-    await ref.orderByChild('isRunning').equalTo(true).once('value', (snapshot) => {
-      const data = snapshot.val()
+    await ref.orderByChild('isRunning').equalTo(true).once('value', async (snapshot) => {
+      const data = await snapshot.val()
       if (data) {
         const gameId = Object.keys(data)[0]
         const game = data[gameId]
@@ -53,13 +52,13 @@ router.put('/', async (req, res, next) => {
 })
 
 // fetches current game start and target, called by join game
-router.get('/:gameId', (req, res, next) => {
+router.get('/:gameId', async (req, res, next) => {
   try {
     const gameId = req.params.gameId
-    const gameRef = db.ref(`Games/${gameId}`)
-    gameRef.on('value', async (snapshot) => {
-      const data = snapshot.val()
-      res.send({ start: data.start, target: data.target })
+    const gameRef = await db.ref(`Games/${gameId}`)
+    gameRef.once('value', async (snapshot) => {
+      const data = await snapshot.val()
+      res.send({ start: data.start, target: data.target, clickInfo: data.clickInfo })
     })
   } catch (err) {
     next(err)
