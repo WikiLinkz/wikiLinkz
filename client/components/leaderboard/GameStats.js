@@ -12,11 +12,16 @@ export default class GameStats extends Component {
 
   async componentDidMount() {
     const { gameId } = this.props
-    const gameRef = await db.ref('Games/' + gameId)
+    const gameRef = await db.ref('GlobalGame/' + gameId)
     gameRef.on('value', snapshot => {
-      const clickInfo = snapshot.val().clickInfo
-      const players = Object.keys(clickInfo)
-      this.setState({ clickInfo, players })
+      if (snapshot.val() !== null) {
+        const clickInfo = snapshot.val().clickInfo
+        console.log(clickInfo)
+        if (clickInfo !== undefined && clickInfo !== null) {
+          const players = Object.keys(clickInfo)
+          this.setState({ clickInfo, players })
+        }
+      }
     })
   }
 
@@ -25,11 +30,13 @@ export default class GameStats extends Component {
     const newGame = this.props.gameId
     if (oldGame !== newGame) {
       const { gameId } = this.props
-      const gameRef = await db.ref('Games/' + gameId)
+      const gameRef = await db.ref('GlobalGame/' + gameId)
       gameRef.on('value', snapshot => {
         const clickInfo = snapshot.val().clickInfo
-        const players = Object.keys(clickInfo)
-        this.setState({ clickInfo, players })
+        if (clickInfo !== undefined && clickInfo !== null) {
+          const players = Object.keys(clickInfo)
+          this.setState({ clickInfo, players })
+        }
       })
     }
   }

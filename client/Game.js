@@ -8,11 +8,29 @@ import { auth } from '../server/db/config'
 
 if (process.env.NODE_ENV !== 'production') require('../server/db/credentials')
 
+import GlobalGameInfo from './components/GlobalGameInfo'
+
+const defaultState = {
+  gameId: '',
+  userId: '',
+  start: '',
+  target: '',
+  html: '',
+  userStats: {
+    history: [],
+    clicks: 0,
+    won: false
+  },
+  startTime: '',
+  endTime: '',
+  isRunning: true
+}
+
 export default class Game extends Component {
   constructor() {
     super()
     this.state = {
-      gameId: '',
+      gameId: null,
       userId: '',
       start: '',
       target: '',
@@ -22,13 +40,18 @@ export default class Game extends Component {
         clicks: 0,
         won: false
       },
-      isRunning: true
+      isRunning: true,
+      startTime: '',
+      endTime: ''
     }
 
     this.updateLocalStats = this.updateLocalStats.bind(this)
     this.handleClick = this.handleClick.bind(this)
     this.generateGame = this.generateGame.bind(this)
     this.joinGame = this.joinGame.bind(this)
+    this.generateGlobalGame = this.generateGlobalGame.bind(this)
+    this.joinGlobalGame = this.joinGlobalGame.bind(this)
+    this.stopGlobalGame = this.stopGlobalGame.bind(this)
   }
 
   updateLocalStats(newStats) {
@@ -43,20 +66,20 @@ export default class Game extends Component {
 
   async componentDidMount() {
     try {
-      // find the current game
-      const res = await axios.get(`${process.env.HOST}/api/games`)
-      const { gameId, start, target } = res.data
+      //find the current game
+      const res = await axios.get(`${process.env.HOST}/api/GlobalGame`)
+      const { gameId, start, target, startTime, endTime } = res.data
       // check if a user is logged in
       let userId
       await auth.onAuthStateChanged(user => {
         if (user) {
           userId = user.uid
           console.log('User logged in')
-          this.setState({ gameId, start, target, userId })
+          this.setState({ gameId, start, target, userId, startTime, endTime })
         } else {
           userId = null
           console.log('User NOT logged in')
-          this.setState({ gameId, start, target, userId })
+          this.setState({ gameId, start, target, userId, startTime, endTime })
         }
       })
     } catch (err) { console.log('Error getting the current game', err) }
@@ -111,6 +134,58 @@ export default class Game extends Component {
     } catch (error) { console.log('Error JOINING the game', error) }
   }
 
+  // global game functions
+  async generateGlobalGame() {
+    try {
+      const res = await axios.post('http://localhost:8080/api/globalGame/')
+      const { newGameId, start, target, error } = res.data
+      if (error === 'Global Game Already Running!') {
+        alert('Global Game Already Running')
+      }
+      this.setState({ gameId: newGameId, start, target })
+    } catch (error) { console.log('Error CREATING the global game', error) }
+  }
+
+  async joinGlobalGame() {
+    try {
+      const res = await axios.get(`http://localhost:8080/api/globalGame/`)
+      const { start, target, html, error } = res.data
+      if (error === 'No game running!') {
+        alert('No Global Game Running!')
+      }
+      else {
+        const { userId, gameId, userStats } = this.state
+        await axios.put(`${process.env.HOST}/api/GlobalGame/${gameId}/${userId}`, { ...userStats })
+        // add current game's id to user's game history
+        await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
+        // get current game
+        const res = await axios.get(`${process.env.HOST}/api/GlobalGame/${gameId}`)
+        let { start, target } = res.data
+        // get start html
+        start = underTitleize(start)
+        const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${start}`)
+        const html = wikiRes.data
+        const { history } = this.state.userStats
+        this.setState({
+          start,
+          target,
+          html,
+          userStats: {
+            ...userStats,
+            history: [...history, start]
+          }
+        })
+      }
+    } catch (error) { console.log('Error JOINING the global game', error) }
+  }
+
+  async stopGlobalGame() {
+    try {
+      await axios.put('http://localhost:8080/api/globalGame/stopGlobalGame')
+      await this.setState(defaultState)
+    } catch (error) { console.log('Error STOPPING the global game', error) }
+  }
+
   async handleClick(evt) {
     evt.preventDefault()
     if (evt.target.tagName !== 'A') return
@@ -131,11 +206,11 @@ export default class Game extends Component {
     await this.setState({ html: wikiRes.data })
     // update player's db instance
     const { gameId, userId, userStats } = this.state
-    await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { ...userStats })
+    await axios.put(`${process.env.HOST}/api/GlobalGame/${gameId}/${userId}`, { ...userStats })
   }
 
   render() {
-    const { start, target, html, userStats, gameId } = this.state
+    const { start, target, html, userStats, gameId, startTime, endTime } = this.state
 
     return (
       <div>
@@ -143,7 +218,13 @@ export default class Game extends Component {
           <header className="game-header">
             <h1 className="game-title">WikiLinks Game</h1>
             <Login />
+            <GlobalGameInfo />
           </header>
+          <div>
+            <button onClick={this.generateGlobalGame}>Generate Global Game</button>
+            <button onClick={this.joinGlobalGame}>Join Global Game</button>
+            <button onClick={this.stopGlobalGame}>Stop/Achive Global Game</button>
+          </div>
           <div>
             <button onClick={this.generateGame}>Generate Game</button>
             <button onClick={this.joinGame}>Join Game</button>
@@ -164,7 +245,7 @@ export default class Game extends Component {
                 />
               }
             </div>
-            <LeaderboardContainer gameId={gameId} userStats={userStats} start={start} target={target} />
+            <LeaderboardContainer gameId={gameId} userStats={userStats} start={start} target={target} startTime={startTime} endTime={endTime} />
           </div>
         </div>
       </div >
