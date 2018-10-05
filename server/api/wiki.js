@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const { getDate, getRandomNums, titleize } = require('./utils')
+const { getDate, getRandomNums, titleize, underTitleize } = require('./utils')
 const axios = require('axios')
 module.exports = router
 
@@ -23,7 +23,8 @@ router.get('/', async (req, res, next) => {
 // fetch wikipedia article by title
 router.get('/:title', async (req, res, next) => {
   try {
-    const title = req.params.title
+    const title = underTitleize(req.params.title)
+    console.log('TITLE', title)
     const response = await axios.get(`https://en.wikipedia.org/api/rest_v1/page/html/${title}`)
     res.send(response.data)
   } catch (err) {
