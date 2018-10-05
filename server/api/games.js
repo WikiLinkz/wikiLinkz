@@ -83,11 +83,6 @@ router.put('/:gameId/:userId', async (req, res, next) => {
       clicks,
       won
     })
-    // const newGame = {}
-    // newGame[gameId] = true
-    // await db.ref(`Users/${userId}/gameHistory`).update({
-    //   ...newGame
-    // })
     res.sendStatus(200)
   } catch (err) {
     next(err)

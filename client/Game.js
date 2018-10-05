@@ -22,6 +22,7 @@ export default class Game extends Component {
     }
     this.generateGame = this.generateGame.bind(this)
     this.joinGame = this.joinGame.bind(this)
+    this.handleClick = this.handleClick.bind(this)
   }
 
   async componentDidMount() {
@@ -59,17 +60,24 @@ export default class Game extends Component {
   async handleClick(evt) {
     evt.preventDefault()
     if (evt.target.tagName !== 'A') return
-
+    // update click count, history
+    const clicks = this.state.clicks + 1
+    const history = [...this.state.history, evt.target.title]
+    // fetch new article
     const title = underTitleize(evt.target.title)
+    const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${title}`)
+    await this.setState({ html: wikiRes.data, history, clicks })
+    // check if player won
+    if (title === this.state.target) {
+      this.setState({ won: true })
+    }
+    // update player's db instance
     const { gameId, userId } = this.state
-    const res = await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { title })
-    // const res = await axios.get(`https://en.wikipedia.org/api/rest_v1/page/html/${this.state.title}`)
-    // this.setState({ html: res.data })
-    // console.log('clicked title: ', title, 'target title: ', this.state.target)
-    // if (title === this.state.target) { alert('DAAAAAMN!') }
+    await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { clicks, won })
   }
 
   render() {
+    const { won, html, start, target, history, clicks } = this.state
     return (
       <div>
         <div id="game-container" style={{ padding: 25 }}>
@@ -83,18 +91,21 @@ export default class Game extends Component {
             <div className='game-wikipedia-info-container' style={{ display: 'flex', borderStyle: 'solid', paddingLeft: 25 }}>
               <div className='game-wikipedia-render' style={{ flex: '3', height: '80vh', overflowY: 'scroll' }}>
                 {
-                  (this.state.html === '') ? null : <div className='wiki-article' onClick={this.handleClick} dangerouslySetInnerHTML={{ __html: this.state.html }} />
+                  (html === '') ? null : <div className='wiki-article' onClick={this.handleClick} dangerouslySetInnerHTML={{ __html: html }} />
                 }
               </div>
               <div className='game-info-container-wrapper' style={{ flex: '1', display: 'flex', flexDirection: 'column', backgroundColor: 'lightgrey' }}>
                 <div className='game-info-container' style={{ flex: '1', padding: 20 }}>
                   <div className='game-info-container-fixed' style={{ flex: '1' }}>
-                    <h3 style={{ textAlign: 'center', }}>Game Info</h3>
+                    {won ?
+                      <h3 style={{ textAlign: 'center', color: 'red' }}>YOU HAVE WON!!</h3>
+                      : <h3 style={{ textAlign: 'center' }}>'Game Info'}</h3>
+                    }
                     {/* <h3 style={{ textAlign: 'center', }}>Time Remaining: {this.state.time.m}:{this.state.time.s}</h3> */}
-                    <p>Start: {this.state.start}</p>
-                    <p>Target: {this.state.target}</p>
-                    <p>History: {this.state.history}</p>
-                    <p>Clicks: {this.state.clicks}</p>
+                    <p>Start: {start}</p>
+                    <p>Target: {target}</p>
+                    <p>History: {history.join(', ')}</p>
+                    <p>Clicks: {clicks}</p>
                     <p>Users:</p>
                     {/*map through users here*/}
                     <ul>User1 (2)</ul>
