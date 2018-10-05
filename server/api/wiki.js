@@ -23,7 +23,7 @@ router.get('/', async (req, res, next) => {
 // fetch wikipedia article by title
 router.get('/:title', async (req, res, next) => {
   try {
-    const title = await underTitleize(req.params.title)
+    const title = underTitleize(req.params.title)
     const response = await axios.get
       (`https://en.wikipedia.org/api/rest_v1/page/html/${title}`)
     res.send(response.data)

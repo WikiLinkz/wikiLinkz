@@ -6,8 +6,8 @@ module.exports = router
 router.get('/', async (req, res, next) => {
   try {
     const ref = await db.ref('Games')
-    await ref.orderByChild('isRunning').equalTo(true).once('value', (snapshot) => {
-      const data = snapshot.val()
+    await ref.orderByChild('isRunning').equalTo(true).once('value', async (snapshot) => {
+      const data = await snapshot.val()
       if (data) {
         const gameId = Object.keys(data)[0]
         const game = data[gameId]
