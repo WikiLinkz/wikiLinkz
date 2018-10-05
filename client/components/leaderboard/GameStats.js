@@ -16,11 +16,26 @@ export default class GameStats extends Component {
     // move this to server/api
     const gameRef = await db.ref('Games/' + gameId)
     gameRef.on('value', snapshot => {
-      console.log('snapshot', snapshot.val())
       const clickInfo = snapshot.val().clickInfo
       const players = Object.keys(clickInfo)
       this.setState({ clickInfo, players })
     })
+  }
+
+  async componentDidUpdate(prevProps) {
+    const oldGame = prevProps.gameId
+    const newGame = this.props.gameId
+    if (oldGame !== newGame) {
+      const { gameId } = this.props
+
+      // move this to server/api
+      const gameRef = await db.ref('Games/' + gameId)
+      gameRef.on('value', snapshot => {
+        const clickInfo = snapshot.val().clickInfo
+        const players = Object.keys(clickInfo)
+        this.setState({ clickInfo, players })
+      })
+    }
   }
 
   render() {

@@ -25,6 +25,7 @@ export default class Game extends Component {
       isRunning: true
     }
 
+    this.updateStats = this.updateStats.bind(this)
     this.handleClick = this.handleClick.bind(this)
     this.testClicks = this.testClicks.bind(this)
     this.generateGame = this.generateGame.bind(this)
@@ -86,12 +87,31 @@ export default class Game extends Component {
   async handleClick(evt) {
     evt.preventDefault()
     if (evt.target.tagName !== 'A') return
-    // update the database
-    const { gameId, userId, userStats } = this.state
+    const { gameId, userId } = this.state
     const title = underTitleize(evt.target.title)
-    const res = await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { ...userStats, title })
+
+    // update stats
+    const clickNum = this.state.userStats.clicks
+    const history = this.state.userStats.history
+    const updatedStats = {
+      clicks: clickNum + 1,
+      won: false,
+      history: [...history, title]
+    }
+    this.updateStats(updatedStats)
+
+    // get new html & update data
+    const res = await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { ...updatedStats, title })
     const { html } = res.data
-    this.setState({ html })
+    this.setState({
+      html
+    })
+  }
+
+  updateStats(updatedStats) {
+    this.setState({
+      userStats: updatedStats
+    })
   }
 
   render() {
@@ -117,7 +137,7 @@ export default class Game extends Component {
             </div>
           </div>
         </div>
-      </div>
+      </div >
     )
   }
 }
