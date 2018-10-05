@@ -39,9 +39,12 @@ export default class Game extends Component {
       // kill previous game
       const gameId = this.state.gameId
       await axios.put(`${process.env.HOST}/api/games`, { gameId })
+      // generate new start and target articles from wiki api
+      const wikiRes = await axios.get(`${process.env.HOST}/api/wiki`)
+      const { start, target } = wikiRes.data
       // create a new game
-      const res = await axios.post(`${process.env.HOST}/api/games`)
-      const { newGameId, start, target } = res.data
+      const res = await axios.post(`${process.env.HOST}/api/games`, { start, target })
+      const { newGameId } = res.data
       this.setState({ gameId: newGameId, start, target })
     } catch (err) { console.log('Error CREATING the game', err) }
   }
@@ -53,9 +56,12 @@ export default class Game extends Component {
       await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { clicks, won })
       // add current game's id to user's game history
       await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
-      // get current game and the starting article
+      // get current game
       const res = await axios.get(`${process.env.HOST}/api/games/${gameId}`)
-      const { start, target, html } = res.data
+      const { start, target } = res.data
+      // get start html
+      const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${start}`)
+      const html = wikiRes.data
       this.setState({ start, target, html, history: [...this.state.history, start] })
     } catch (error) { console.log('Error JOINING the game', error) }
   }
@@ -66,21 +72,21 @@ export default class Game extends Component {
     // update click count, history
     const clicks = this.state.clicks + 1
     const history = [...this.state.history, evt.target.title]
+    // check if player won
+    const { won } = this.state
+    if (title === this.state.target) { won = true }
     // fetch new article
     const title = underTitleize(evt.target.title)
     const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${title}`)
-    await this.setState({ html: wikiRes.data, history, clicks })
-    // check if player won
-    if (title === this.state.target) {
-      this.setState({ won: true })
-    }
+    await this.setState({ html: wikiRes.data, history, clicks, won })
     // update player's db instance
     const { gameId, userId } = this.state
     await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { clicks, won })
   }
 
   render() {
-    const { won, html, start, target, history, clicks } = this.state
+    const { start, target, html, history, clicks, won } = this.state
+
     return (
       <div>
         <div id="game-container" style={{ padding: 25 }}>
