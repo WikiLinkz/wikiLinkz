@@ -23,7 +23,8 @@ export default class Login extends Component {
     auth.onAuthStateChanged((user) => {
       if (user) {
         usersRef.child(user.uid).once('value', snapshot => {
-          const userName = snapshot.val().username
+          let userName = null
+          if (snapshot.val() !== null) userName = snapshot.val().username
           this.setState({ user, userName })
         })
       }
@@ -55,7 +56,7 @@ export default class Login extends Component {
 
   async logout() {
     await auth.signOut()
-    this.setState({ user: null })
+    this.setState({ user: null, newUser: false })
   }
 
   render() {
