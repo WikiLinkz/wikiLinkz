@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import { underTitleize } from '../server/api/utils'
+import { underTitleize, titleize } from '../server/api/utils'
 import './clean.css'
 import Login from './components/login/Login'
 import LeaderboardContainer from './components/leaderboard/LeaderboardContainer'
@@ -47,8 +47,8 @@ export default class Game extends Component {
 
     this.updateLocalStats = this.updateLocalStats.bind(this)
     this.handleClick = this.handleClick.bind(this)
-    this.generateGame = this.generateGame.bind(this)
-    this.joinGame = this.joinGame.bind(this)
+    // this.generateGame = this.generateGame.bind(this)
+    // this.joinGame = this.joinGame.bind(this)
     this.generateGlobalGame = this.generateGlobalGame.bind(this)
     this.joinGlobalGame = this.joinGlobalGame.bind(this)
     this.stopGlobalGame = this.stopGlobalGame.bind(this)
@@ -85,54 +85,54 @@ export default class Game extends Component {
     } catch (err) { console.log('Error getting the current game', err) }
   }
 
-  async generateGame() {
-    try {
-      // kill previous game
-      const gameId = this.state.gameId
-      await axios.put(`${process.env.HOST}/api/games`, { gameId })
-      // generate new start and target articles from wiki api
-      const wikiRes = await axios.get(`${process.env.HOST}/api/wiki`)
-      const { start, target } = wikiRes.data
-      // create a new game
-      const res = await axios.post(`${process.env.HOST}/api/games`, { start, target })
-      const { newGameId } = res.data
-      const newUserInfo = { clicks: 0, history: [], won: false }
-      this.setState({
-        gameId: newGameId,
-        start,
-        target,
-        html: '',
-        userStats: newUserInfo
-      })
-    } catch (err) { console.log('Error CREATING the game', err) }
-  }
+  // async generateGame() {
+  //   try {
+  //     // kill previous game
+  //     const gameId = this.state.gameId
+  //     await axios.put(`${process.env.HOST}/api/games`, { gameId })
+  //     // generate new start and target articles from wiki api
+  //     const wikiRes = await axios.get(`${process.env.HOST}/api/wiki`)
+  //     const { start, target } = wikiRes.data
+  //     // create a new game
+  //     const res = await axios.post(`${process.env.HOST}/api/games`, { start, target })
+  //     const { newGameId } = res.data
+  //     const newUserInfo = { clicks: 0, history: [], won: false }
+  //     this.setState({
+  //       gameId: newGameId,
+  //       start,
+  //       target,
+  //       html: '',
+  //       userStats: newUserInfo
+  //     })
+  //   } catch (err) { console.log('Error CREATING the game', err) }
+  // }
 
-  async joinGame() {
-    try {
-      // create player instance on the current game
-      const { userId, gameId, userStats } = this.state
-      await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { ...userStats })
-      // add current game's id to user's game history
-      await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
-      // get current game
-      const res = await axios.get(`${process.env.HOST}/api/games/${gameId}`)
-      let { start, target } = res.data
-      // get start html
-      start = underTitleize(start)
-      const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${start}`)
-      const html = wikiRes.data
-      const { history } = this.state.userStats
-      this.setState({
-        start,
-        target,
-        html,
-        userStats: {
-          ...userStats,
-          history: [...history, start]
-        }
-      })
-    } catch (error) { console.log('Error JOINING the game', error) }
-  }
+  // async joinGame() {
+  //   try {
+  //     // create player instance on the current game
+  //     const { userId, gameId, userStats } = this.state
+  //     await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { ...userStats })
+  //     // add current game's id to user's game history
+  //     await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
+  //     // get current game
+  //     const res = await axios.get(`${process.env.HOST}/api/games/${gameId}`)
+  //     let { start, target } = res.data
+  //     // get start html
+  //     start = underTitleize(start)
+  //     const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${start}`)
+  //     const html = wikiRes.data
+  //     const { history } = this.state.userStats
+  //     this.setState({
+  //       start,
+  //       target,
+  //       html,
+  //       userStats: {
+  //         ...userStats,
+  //         history: [...history, start]
+  //       }
+  //     })
+  //   } catch (error) { console.log('Error JOINING the game', error) }
+  // }
 
   // global game functions
   async generateGlobalGame() {
@@ -149,7 +149,7 @@ export default class Game extends Component {
   async joinGlobalGame() {
     try {
       const res = await axios.get(`${process.env.HOST}/api/globalGame/`)
-      const { start, target, html, error } = res.data
+      const { error } = res.data
       if (error === 'No game running!') {
         alert('No Global Game Running!')
       }
@@ -166,6 +166,8 @@ export default class Game extends Component {
         const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${start}`)
         const html = wikiRes.data
         const { history } = this.state.userStats
+        start = titleize(start)
+        target = titleize(target)
         this.setState({
           start,
           target,
@@ -192,6 +194,7 @@ export default class Game extends Component {
     const { clicks, history } = this.state.userStats
     // check if player won
     let { won } = this.state.userStats
+    console.log("WON?", evt.target.title === this.state.target)
     if (evt.target.title === this.state.target) { won = true }
     // update click count, history
     const updatedStats = {
@@ -225,10 +228,10 @@ export default class Game extends Component {
             <button onClick={this.joinGlobalGame}>Join Global Game</button>
             <button onClick={this.stopGlobalGame}>Stop/Achive Global Game</button>
           </div>
-          <div>
+          {/* <div>
             <button onClick={this.generateGame}>Generate Game</button>
             <button onClick={this.joinGame}>Join Game</button>
-          </div>
+          </div> */}
           <div
             className='game-wikipedia-info-container'
             style={{ display: 'flex', borderStyle: 'solid', paddingLeft: 25 }}
