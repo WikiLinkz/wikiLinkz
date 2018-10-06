@@ -170,7 +170,7 @@ export default class Game extends Component {
         target = titleize(target)
         this.setState({
           start,
-          target,
+          target: 'Jesus',
           html,
           userStats: {
             ...userStats,
@@ -194,6 +194,7 @@ export default class Game extends Component {
     const { clicks, history } = this.state.userStats
     // check if player won
     let { won } = this.state.userStats
+    console.log("WON?", evt.target.title === this.state.target)
     if (evt.target.title === this.state.target) { won = true }
     // update click count, history
     const updatedStats = {
