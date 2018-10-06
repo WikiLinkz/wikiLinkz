@@ -55,7 +55,6 @@ export default class Game extends Component {
       let userId
       await auth.onAuthStateChanged(user => {
         userId = user ? user.uid : null
-        console.log('UserId: ', userId)
         this.setState({ gameId, start, target, userId, startTime, endTime })
       })
     } catch (err) { console.log('Error getting the current game', err) }
@@ -117,14 +116,15 @@ export default class Game extends Component {
       const getGameRes = await axios.get(`${process.env.HOST}/api/GlobalGame`)
       if (!getGameRes.data.error) {
         alert('Global Game Already Running')
+      } else {
+        // generate new start and target articles from wiki api
+        const wikiRes = await axios.get(`${process.env.HOST}/api/wiki`)
+        const { start, target } = wikiRes.data
+        // create a new game with timer
+        const res = await axios.post(`${process.env.HOST}/api/globalGame/`, { start, target })
+        const { gameId, startTime, endTime } = res.data
+        this.setState({ gameId, start, target, startTime, endTime })
       }
-      // generate new start and target articles from wiki api
-      const wikiRes = await axios.get(`${process.env.HOST}/api/wiki`)
-      const { start, target } = wikiRes.data
-      // create a new game with timer
-      const res = await axios.post(`${process.env.HOST}/api/globalGame/`, { start, target })
-      const { gameId, startTime, endTime } = res.data
-      this.setState({ gameId, start, target, startTime, endTime })
     } catch (error) { console.log('Error CREATING the global game', error) }
   }
 
@@ -139,10 +139,8 @@ export default class Game extends Component {
       else {
         // create player instance on the current game
         const { userId, gameId, userStats } = this.state
-        console.log('creating user', userId, 'gameId: ', gameId, 'stats', userStats)
         await axios.put(`${process.env.HOST}/api/GlobalGame/${gameId}/${userId}`, { ...userStats })
         // add current game's id to user's game history
-        console.log('adding game to user', userId, gameId)
         await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
         // get current game start and target titles
         const res = await axios.get(`${process.env.HOST}/api/GlobalGame/${gameId}`)
@@ -152,7 +150,6 @@ export default class Game extends Component {
         const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${start}`)
         const html = wikiRes.data
         const { history } = this.state.userStats
-        console.log(start, target)
         start = titleize(start)
         this.setState({
           start,
