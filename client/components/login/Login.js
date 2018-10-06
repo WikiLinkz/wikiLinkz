@@ -45,7 +45,6 @@ export default class Login extends Component {
           newUser = true
         } else {
           userName = userObj.username
-          console.log('userName', userName)
         }
       });
       this.setState({ user, newUser, userName })
