@@ -64,7 +64,7 @@ export default class UserName extends Component {
       <div id="username">
         {
           complete
-            ? <LoginComplete userName={userName} logout={this.logout} />
+            ? <LoginComplete userName={userName} logout={this.props.logout} />
             : <form type="submit" onSubmit={this.handleSubmit}>
               Pick your username:<br />
               <input

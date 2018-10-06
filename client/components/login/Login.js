@@ -4,6 +4,8 @@ import LoginComplete from './LoginComplete'
 import UserName from './UserName'
 import './login.css'
 
+const usersRef = db.ref('/Users')
+
 export default class Login extends Component {
   constructor() {
     super();
@@ -20,7 +22,10 @@ export default class Login extends Component {
   componentDidMount() {
     auth.onAuthStateChanged((user) => {
       if (user) {
-        this.setState({ user });
+        usersRef.child(user.uid).once('value', snapshot => {
+          const userName = snapshot.val().username
+          this.setState({ user, userName })
+        })
       }
     })
   }
@@ -29,7 +34,6 @@ export default class Login extends Component {
     try {
       const res = await auth.signInWithPopup(googleProvider)
       const user = res.user
-      const usersRef = db.ref('/Users')
       const uid = user.uid
 
       // check if user exists in /Users
@@ -41,6 +45,7 @@ export default class Login extends Component {
           newUser = true
         } else {
           userName = userObj.username
+          console.log('userName', userName)
         }
       });
       this.setState({ user, newUser, userName })
@@ -56,19 +61,13 @@ export default class Login extends Component {
 
   render() {
     const { user, newUser, userName } = this.state
+    if (user && newUser === false) return <LoginComplete userName={userName} logout={this.logout} />
     return (
       <div id="login" >
         {
           newUser
             ? <UserName user={user} logout={this.logout} />
-            :
-            <div id="returning-user">
-              {
-                user
-                  ? <LoginComplete userName={userName} logout={this.logout} />
-                  : <button type="button" onClick={this.login}>Login With Google</button>
-              }
-            </div>
+            : <button type="button" onClick={this.login}>Login With Google</button>
         }
       </div >
     )
