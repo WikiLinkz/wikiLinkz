@@ -170,7 +170,7 @@ export default class Game extends Component {
         target = titleize(target)
         this.setState({
           start,
-          target: 'Jesus',
+          target,
           html,
           userStats: {
             ...userStats,
