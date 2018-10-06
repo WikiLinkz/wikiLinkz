@@ -18,7 +18,6 @@ export default class GlobalGameInfo extends Component {
         const gameId = currentGame.key
         await db.ref('GlobalGame/' + gameId).on('value', async snapshot => {
           const gameData = snapshot.val()
-          console.log('gameDATA', gameData)
           if (gameData === null) {
             this.setState({
               start: '',
