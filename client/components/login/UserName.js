@@ -59,7 +59,7 @@ export default class UserName extends Component {
   render() {
     const { userName, available, complete } = this.state
     const enabled = userName.length > 5 && userName.length < 10 && available === true
-    const showCheck = userName.length > 5 && userName.length
+    const showCheck = userName.length > 5 && userName.length < 10
     return (
       <div id="username">
         {
