@@ -1,12 +1,16 @@
 import React, { Component } from 'react'
 import { googleProvider, auth, db } from '../../../server/db/config'
 import LoginComplete from './LoginComplete'
+import UserName from './UserName'
+import './login.css'
 
 export default class Login extends Component {
   constructor() {
     super();
     this.state = {
-      user: null
+      user: null,
+      newUser: false,
+      userName: null
     }
 
     this.login = this.login.bind(this)
@@ -25,22 +29,25 @@ export default class Login extends Component {
     try {
       const res = await auth.signInWithPopup(googleProvider)
       const user = res.user
-      const usersRef = db.ref("/Users")
+      const usersRef = db.ref('/Users')
       const uid = user.uid
-      db.ref("/Users").child(uid).once("value", function (snapshot) {
-        if (snapshot.val() === null) {
-          usersRef.child(uid).set({
-            userId: uid,
-            email: user.email
-          })
+
+      // check if user exists in /Users
+      let userName
+      let newUser = false
+      await usersRef.child(uid).once('value', (snapshot) => {
+        const userObj = snapshot.val()
+        if (userObj === null) {
+          newUser = true
+        } else {
+          userName = userObj.username
         }
       });
-      this.setState({ user })
+      this.setState({ user, newUser, userName })
     } catch (err) {
       console.log('Error logging in', err)
     }
   }
-
 
   async logout() {
     await auth.signOut()
@@ -48,12 +55,20 @@ export default class Login extends Component {
   }
 
   render() {
+    const { user, newUser, userName } = this.state
     return (
       <div id="login" >
         {
-          (this.state.user)
-            ? <LoginComplete user={this.state.user} logout={this.logout} />
-            : <button type="button" onClick={this.login}>Login With Google</button>
+          newUser
+            ? <UserName user={user} logout={this.logout} />
+            :
+            <div id="returning-user">
+              {
+                user
+                  ? <LoginComplete userName={userName} logout={this.logout} />
+                  : <button type="button" onClick={this.login}>Login With Google</button>
+              }
+            </div>
         }
       </div >
     )
