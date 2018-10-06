@@ -4,38 +4,48 @@ const { db } = require('../db/config')
 const axios = require('axios')
 module.exports = router
 
+// finds Global Game, returns start, target, gameId, called from componentDidMount
+router.get('/', async (req, res, next) => {
+  try {
+    await db.ref('GlobalGame').once('value', snapshot => {
+      if (snapshot.val() === null) {
+        res.send({ error: 'No game running!' })
+      }
+      snapshot.forEach(currentGame => {
+        const gameId = currentGame.key
+        const gameRef = db.ref(`GlobalGame/${gameId}`)
+        gameRef.once('value', async (snapshot) => {
+          const data = snapshot.val()
+          const { gameId, start, target, startTime, endTime } = data
+          res.send({ gameId, start, target, startTime, endTime })
+        })
+      })
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
+//creates a new game instance in db, called by generate game
 router.post('/', async (req, res, next) => {
   try {
-    //check to see if a Global Game is already running
-    const gameCheck = await db.ref('GlobalGame').once('value')
-    if (gameCheck.val() !== null) {
-      res.send({ error: 'Global Game Already Running!' })
-    }
-    else {
-      // Get top articles of the day from WikiPedia
-      const date = getDate()
-      const topArticles = await axios.get(`https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia.org/all-access/${date[0]}/${date[1]}/${date[2]}`)
-      const articles = topArticles.data.items[0].articles
-      // Assign random top article to start and target articles of the game
-      const randomNums = getRandomNums()
-      const start = titleize(articles[randomNums[0]].article)
-      const target = titleize(articles[randomNums[1]].article)
-      //Assign start/end time
-      const timeNow = new Date()
-      const startTime = timeNow.toString()
-      const endTime = new Date(timeNow.getTime() + 2 * 60000).toString()
-      //Create a new game instance in Firebase
-      const newGameId = await db.ref('GlobalGame').push().key
-      await db.ref('GlobalGame/' + newGameId).set({
-        gameId: newGameId,
-        start: start,
-        target: target,
-        isRunning: false,
-        startTime: startTime,
-        endTime: endTime
-      })
-      res.send({ newGameId, start, target, startTime, endTime })
-    }
+    //Assign start/end time
+    const timeNow = new Date()
+    const startTime = timeNow.toString()
+    const endTime = new Date(timeNow.getTime() + 2 * 60000).toString()
+    //Create a new game instance in Firebase
+    const { start, target } = req.body
+    const gameId = await db.ref('GlobalGame').push().key
+    await db.ref('GlobalGame/' + gameId).set({
+      gameId: gameId,
+      start: start,
+      target: target,
+      isRunning: false,
+      clickInfo: true,
+      startTime: startTime,
+      endTime: endTime
+    })
+    res.send({ gameId, startTime, endTime })
   } catch (err) {
     next(err)
   }
@@ -59,25 +69,24 @@ router.put('/stopGlobalGame', async (req, res, next) => {
   }
 })
 
-router.get('/', async (req, res, next) => {
+// fetches current game start and target, called by join game
+router.get('/:gameId', async (req, res, next) => {
   try {
-    await db.ref('GlobalGame').once('value', snapshot => {
-      if (snapshot.val() === null) {
-        res.send({ error: 'No game running!' })
-      }
-      snapshot.forEach(currentGame => {
-        const gameId = currentGame.key
-        const gameRef = db.ref(`GlobalGame/${gameId}`)
-        gameRef.once('value', async (snapshot) => {
-          const data = snapshot.val()
-          const title = underTitleize(data.start)
-          const response = await axios.get(`https://en.wikipedia.org/api/rest_v1/page/html/${title}`)
-          res.send({ start: data.start, target: data.target, html: response.data, gameId: data.gameId })
-        })
+    const gameId = req.params.gameId
+    const gameRef = await db.ref(`GlobalGame/${gameId}`)
+    gameRef.once('value', async (snapshot) => {
+      const data = await snapshot.val()
+      const { start, target, clickInfo, startTime, endTime } = data
+      res.send({
+        start,
+        target,
+        clickInfo,
+        startTime,
+        endTime
       })
     })
-  } catch (error) {
-    next(error)
+  } catch (err) {
+    next(err)
   }
 })
 
@@ -91,26 +100,6 @@ router.put('/:gameId/:userId', async (req, res, next) => {
       won
     })
     res.sendStatus(200)
-  } catch (err) {
-    next(err)
-  }
-})
-
-// fetches current game start and target, called by join game
-router.get('/:gameId', async (req, res, next) => {
-  try {
-    const gameId = req.params.gameId
-    const gameRef = await db.ref(`GlobalGame/${gameId}`)
-    gameRef.once('value', async (snapshot) => {
-      const data = await snapshot.val()
-      res.send({
-        start: data.start,
-        target: data.target,
-        clickInfo: data.clickInfo,
-        startTime: data.startTime,
-        endTime: data.endTime
-      })
-    })
   } catch (err) {
     next(err)
   }

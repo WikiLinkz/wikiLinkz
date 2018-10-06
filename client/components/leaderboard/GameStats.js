@@ -30,14 +30,16 @@ export default class GameStats extends Component {
     const newGame = this.props.gameId
     if (oldGame !== newGame) {
       const { gameId } = this.props
-      const gameRef = await db.ref('GlobalGame/' + gameId)
-      gameRef.on('value', snapshot => {
-        const clickInfo = snapshot.val().clickInfo
-        if (clickInfo !== undefined && clickInfo !== null) {
-          const players = Object.keys(clickInfo)
-          this.setState({ clickInfo, players })
-        }
-      })
+      if (gameId) {
+        const gameRef = await db.ref('GlobalGame/' + gameId)
+        gameRef.on('value', snapshot => {
+          const clickInfo = snapshot.val().clickInfo
+          if (clickInfo !== undefined && clickInfo !== null) {
+            const players = Object.keys(clickInfo)
+            this.setState({ clickInfo, players })
+          }
+        })
+      }
     }
   }
 
