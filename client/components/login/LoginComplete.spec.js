@@ -13,13 +13,11 @@ describe('LoginComplete', () => {
   let loginComplete
 
   beforeEach(() => {
-    const user = {
-      email: "ryan.mcnierney@gmail.com"
-    }
-    loginComplete = shallow(<LoginComplete user={user} />)
+    const userName = 'ryanmac21'
+    loginComplete = shallow(<LoginComplete userName={userName} />)
   })
 
   it('renders the email in an h3', () => {
-    expect(loginComplete.find('h3').text()).to.be.equal('Welcome, ryan.mcnierney@gmail.com')
+    expect(loginComplete.find('h3').text()).to.be.equal('Welcome, ryanmac21')
   })
 })
