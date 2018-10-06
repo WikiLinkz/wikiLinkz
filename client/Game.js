@@ -5,26 +5,9 @@ import './clean.css'
 import Login from './components/login/Login'
 import LeaderboardContainer from './components/leaderboard/LeaderboardContainer'
 import { auth } from '../server/db/config'
-
-if (process.env.NODE_ENV !== 'production') require('../server/db/credentials')
-
 import GlobalGameInfo from './components/GlobalGameInfo'
 
-const defaultState = {
-  gameId: '',
-  userId: '',
-  start: '',
-  target: '',
-  html: '',
-  userStats: {
-    history: [],
-    clicks: 0,
-    won: false
-  },
-  startTime: '',
-  endTime: '',
-  isRunning: true
-}
+if (process.env.NODE_ENV !== 'production') require('../server/db/credentials')
 
 export default class Game extends Component {
   constructor() {
@@ -40,7 +23,6 @@ export default class Game extends Component {
         clicks: 0,
         won: false
       },
-      isRunning: true,
       startTime: '',
       endTime: ''
     }
@@ -155,9 +137,12 @@ export default class Game extends Component {
         alert('No Global Game Running!')
       }
       else {
+        // create player instance on the current game
         const { userId, gameId, userStats } = this.state
+        console.log('creating user', userId, 'gameId: ', gameId, 'stats', userStats)
         await axios.put(`${process.env.HOST}/api/GlobalGame/${gameId}/${userId}`, { ...userStats })
         // add current game's id to user's game history
+        console.log('adding game to user', userId, gameId)
         await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
         // get current game start and target titles
         const res = await axios.get(`${process.env.HOST}/api/GlobalGame/${gameId}`)
@@ -185,7 +170,19 @@ export default class Game extends Component {
   async stopGlobalGame() {
     try {
       await axios.put(`${process.env.HOST}/api/globalGame/stopGlobalGame`)
-      await this.setState(defaultState)
+      await this.setState({
+        gameId: '',
+        start: '',
+        target: '',
+        html: '',
+        userStats: {
+          history: [],
+          clicks: 0,
+          won: false
+        },
+        startTime: '',
+        endTime: ''
+      })
     } catch (error) { console.log('Error STOPPING the global game', error) }
   }
 
