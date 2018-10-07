@@ -23,12 +23,21 @@ router.get('/', async (req, res, next) => {
 // fetch wikipedia article by title
 router.get('/:title', async (req, res, next) => {
   try {
-    const title = underTitleize(req.params.title).replace(/,/g, '')
-    console.log('TITLE', title)
+    const title = underTitleize(req.params.title)
+    // we can't do .replace(/,/g, '') here because some titles have commas!
+    // encodeURI will make sure accents are encoded correctly
     const response = await axios.get
-      (`https://en.wikipedia.org/api/rest_v1/page/html/${title}`)
+      (`https://en.wikipedia.org/api/rest_v1/page/html/${encodeURI(title)}`)
     res.send(response.data)
   } catch (err) {
-    next(err)
+    // if above errors, find the correct path using wiki error response
+    const fixedTitle = err.response.request._options.path
+    try {
+      const fixedResponse = await axios.get
+        (`https://en.wikipedia.org/api/rest_v1/page/html${fixedTitle}`)
+      res.send(fixedResponse.data)
+    } catch (err) {
+      next(err)
+    }
   }
 })
