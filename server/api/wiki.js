@@ -25,6 +25,7 @@ router.get('/:title', async (req, res, next) => {
   try {
     const title = underTitleize(req.params.title)
     // we can't do .replace(/,/g, '') here because some titles have commas!
+    // => perhaps store in our db without commas?
     // encodeURI will make sure accents are encoded correctly
     const response = await axios.get
       (`https://en.wikipedia.org/api/rest_v1/page/html/${encodeURI(title)}`)

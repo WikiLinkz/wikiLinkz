@@ -16,8 +16,8 @@ router.get('/', async (req, res, next) => {
         const gameRef = db.ref(`GlobalGame/${gameId}`)
         gameRef.once('value', async (snapshot) => {
           const data = snapshot.val()
-          const { gameId, start, target, startTime, endTime } = data
-          res.send({ gameId, start, target, startTime, endTime })
+          const { gameId, start, target, startTime, endTime, initTime } = data
+          res.send({ gameId, start, target, startTime, endTime, initTime })
         })
       })
     })
@@ -31,8 +31,9 @@ router.post('/', async (req, res, next) => {
   try {
     //Assign start/end time
     const timeNow = new Date()
-    const startTime = timeNow.toString()
-    const endTime = new Date(timeNow.getTime() + 2 * 60000).toString()
+    const initTime = timeNow.toString()
+    const startTime = new Date(timeNow.getTime() + .5 * 60000).toString()
+    const endTime = new Date(timeNow.getTime() + 2.5 * 60000).toString()
     //Create a new game instance in Firebase
     const { start, target } = req.body
     const gameId = await db.ref('GlobalGame').push().key
@@ -43,9 +44,10 @@ router.post('/', async (req, res, next) => {
       isRunning: false,
       clickInfo: true,
       startTime: startTime,
-      endTime: endTime
+      endTime: endTime,
+      initTime: initTime
     })
-    res.send({ gameId, startTime, endTime })
+    res.send({ gameId, startTime, endTime, initTime })
   } catch (err) {
     next(err)
   }
@@ -76,13 +78,14 @@ router.get('/:gameId', async (req, res, next) => {
     const gameRef = await db.ref(`GlobalGame/${gameId}`)
     gameRef.once('value', async (snapshot) => {
       const data = await snapshot.val()
-      const { start, target, clickInfo, startTime, endTime } = data
+      const { start, target, clickInfo, startTime, endTime, initTime } = data
       res.send({
         start,
         target,
         clickInfo,
         startTime,
-        endTime
+        endTime,
+        initTime
       })
     })
   } catch (err) {

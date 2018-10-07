@@ -40,15 +40,12 @@ export default class GlobalGameInfo extends Component {
     if (this.state.target) {
       return (
         <div className="global-game-info" >
-          <h4>Global Game Running</h4>
-          <p>Start: {this.state.start}</p>
-          <p>Target: {this.state.target}</p>
-
+          <p>Global Game Running! <br /><b>Start:</b> {this.state.start} <b>Target:</b> {this.state.target}</p>
         </div >
       )
     } else return (
       <div className="global-game-info" >
-        <h4>No Global Game Running: Click Generate Below To Begin One!</h4>
+        <p>No Global Game Running: Click Generate Below To Begin One!</p>
       </div>
     )
   }
