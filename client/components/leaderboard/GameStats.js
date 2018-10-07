@@ -16,7 +16,6 @@ export default class GameStats extends Component {
     gameRef.on('value', snapshot => {
       if (snapshot.val() !== null) {
         const clickInfo = snapshot.val().clickInfo
-        console.log(clickInfo)
         if (clickInfo !== undefined && clickInfo !== null) {
           const players = Object.keys(clickInfo)
           this.setState({ clickInfo, players })

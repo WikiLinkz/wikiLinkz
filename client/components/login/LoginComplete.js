@@ -2,11 +2,10 @@ import React, { Component } from 'react'
 
 export default class LoginComplete extends Component {
   render() {
-    const { logout } = this.props
-    const { email } = this.props.user
+    const { logout, userName } = this.props
     return (
       <div id="user-home">
-        <h3>Welcome, {email}</h3>
+        <h3>Welcome, {userName}</h3>
         <button type="button" onClick={logout}>Logout</button>
       </div>
     )
