@@ -9,8 +9,8 @@ export default class UserStats extends Component {
         <h3>Game Info</h3>
         <p>Start: {start}</p>
         <p><b>Target: {target}</b></p>
-        <p>Start Time: {''}</p>
-        <p>End Time: {''}</p>
+        <p>Start Time: {startTime}</p>
+        <p>End Time: {endTime}</p>
         <p>History: {history}</p>
         <p>Clicks: {userStats.clicks}</p>
       </div>
