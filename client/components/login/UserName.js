@@ -36,7 +36,8 @@ export default class UserName extends Component {
   async handleSubmit(evt) {
     evt.preventDefault()
     const { user } = this.props
-    const username = this.state.userName.toLowerCase()
+    const usernameLow = this.state.userName.toLowerCase()
+    const username = this.state.userName
 
     // write username to firebase /Users
     const usersRef = db.ref('/Users')
@@ -49,7 +50,7 @@ export default class UserName extends Component {
     // write username to firebase /UserNames
     const userNamesRef = db.ref('/UserNames')
     await userNamesRef.update({
-      [username]: user.uid
+      [usernameLow]: user.uid
     })
 
     this.setState({ complete: true })
