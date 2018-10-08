@@ -179,7 +179,13 @@ export default class Game extends Component {
         const { gameId, startTime, endTime, initTime } = res.data
         const timeNow = new Date()
         const timeToGameStart = ((Date.parse(startTime) - Date.parse(timeNow)) / 1000)
-        this.setState({ gameId, start, target, startTime, endTime, initTime, pregame: true, seconds: timeToGameStart })
+        this.setState({
+          gameId, start, target, startTime, endTime, initTime, pregame: true, seconds: timeToGameStart, finished: false, userStats: {
+            history: [],
+            clicks: 0,
+            won: false
+          }
+        })
         this.timer = setInterval(this.countDown, 1000);
       }
     } catch (error) { console.log('Error CREATING the global game', error) }
@@ -226,17 +232,12 @@ export default class Game extends Component {
       clearInterval(this.timer)
       await axios.put(`${process.env.HOST}/api/globalGame/stopGlobalGame`)
       await this.setState({
-        gameId: '',
-        start: '',
-        target: '',
-        html: '',
-        userStats: {
-          history: [],
-          clicks: 0,
-          won: false
-        },
-        startTime: '',
-        endTime: ''
+        finished: true,
+        pregame: false,
+        time: {
+          m: 0,
+          s: 0,
+        }
       })
     } catch (error) { console.log('Error STOPPING the global game', error) }
   }
@@ -274,6 +275,11 @@ export default class Game extends Component {
     let divisor_for_seconds = divisor_for_minutes % 60;
     let seconds = Math.ceil(divisor_for_seconds);
 
+    if (seconds >= 0 && seconds < 10) {
+      const newSeconds = `0${seconds}`
+      seconds = newSeconds
+    }
+
     let obj = {
       "h": hours,
       "m": minutes,
@@ -304,7 +310,6 @@ export default class Game extends Component {
 
 
   render() {
-    console.log(this.state)
     const { start, target, html, userStats, gameId, startTime, endTime, initTime, pregame, finished } = this.state
     // pregame view
     if (pregame === true) {
@@ -348,16 +353,16 @@ export default class Game extends Component {
               <Login />
 
             </header>
-            <div className='button-container' style={{ alignContent: "center" }}>
+            <div className='button-container' style={{ display: "flex", justifyContent: "center" }}>
               <button onClick={this.generateGlobalGame}>Generate Global Game</button>
               <button onClick={this.joinGlobalGame}>Join Global Game</button>
               <button onClick={this.stopGlobalGame}>Stop/Achive Global Game</button>
             </div>
-            <div className='gameover-container'>
+            <div className='gameover-container' style={{ display: "flex", flexDirection: "column", alignItems: 'center' }}>
               <h2>Game Finished!</h2>
               <p>Start: {this.state.start}</p>
               <p>Target: {this.state.target}</p>
-              {/* <p>History: {this.state.userStats.history.split(',').join(" => ")}</p> */}
+              <p>History: {this.state.userStats.history.join(' => ')}</p>
               <p>Clicks: {this.state.userStats.clicks} </p>
             </div>
           </div>
