@@ -1,7 +1,5 @@
 const router = require('express').Router()
-const { getDate, getRandomNums, underTitleize, titleize } = require('./utils')
 const { db } = require('../db/config')
-const axios = require('axios')
 module.exports = router
 
 // finds Global Game, returns start, target, gameId, called from componentDidMount

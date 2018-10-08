@@ -63,10 +63,12 @@ export default class Game extends Component {
 
   async componentDidUpdate() {
     // logic for if pregame ticker is at 0 and component is already loaded
-    if (this.state.pregame === true && this.state.seconds === 0) {
+    const { pregame, seconds, endTime, finished } = this.state
+
+    if (pregame === true && seconds === 0) {
       clearInterval(this.timer)
       const timeNow = new Date()
-      const timeToEnd = ((Date.parse(this.state.endTime) - Date.parse(timeNow)) / 1000)
+      const timeToEnd = ((Date.parse(endTime) - Date.parse(timeNow)) / 1000)
       await this.setState({
         seconds: timeToEnd,
         pregame: false
@@ -75,13 +77,12 @@ export default class Game extends Component {
       this.timer = setInterval(this.countDown, 1000);
     }
     // logic for if game is loaded and is over
-    else if (this.state.pregame === false && this.state.seconds === 0 && this.state.finished === false) {
+    else if (pregame === false && seconds === 0 && finished === false) {
       clearInterval(this.timer)
       this.setState({
         finished: true,
         pregame: false,
       })
-
     }
   }
 
