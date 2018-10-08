@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
 import axios from 'axios'
+import Navbar from './Navbar'
+import Pregame from './components/Pregame'
+import Finished from './components/Finished'
+import InGame from './components/InGame'
+import { auth } from '../server/db/config'
 import { underTitleize, titleize } from '../server/api/utils'
 import './clean.css'
-import Login from './components/login/Login'
-import LeaderboardContainer from './components/leaderboard/LeaderboardContainer'
-import { auth } from '../server/db/config'
-import GlobalGameInfo from './components/GlobalGameInfo'
 
 if (process.env.NODE_ENV !== 'production') require('../server/db/credentials')
 
@@ -34,8 +35,6 @@ export default class Game extends Component {
 
     this.updateLocalStats = this.updateLocalStats.bind(this)
     this.handleClick = this.handleClick.bind(this)
-    // this.generateGame = this.generateGame.bind(this)
-    // this.joinGame = this.joinGame.bind(this)
     this.generateGlobalGame = this.generateGlobalGame.bind(this)
     this.joinGlobalGame = this.joinGlobalGame.bind(this)
     this.stopGlobalGame = this.stopGlobalGame.bind(this)
@@ -44,19 +43,18 @@ export default class Game extends Component {
     this.timer = 5
   }
 
-
-
-
   async componentDidMount() {
     try {
       //find the current game
       const res = await axios.get(`${process.env.HOST}/api/GlobalGame`)
       const { gameId, start, target, startTime, endTime, initTime } = res.data
+      //check current user
       let userId
       await auth.onAuthStateChanged(user => {
         userId = user ? user.uid : null
         this.setState({ gameId, start, target, userId, startTime, endTime, initTime })
       })
+      //timer
       const timeNow = new Date()
       // difference in seconds from mount to game startTime
       const timeToGameStart = ((Date.parse(startTime) - Date.parse(timeNow)) / 1000)
@@ -103,55 +101,6 @@ export default class Game extends Component {
 
     }
   }
-
-  // async generateGame() {
-  //   try {
-  //     // kill previous game
-  //     const gameId = this.state.gameId
-  //     await axios.put(`${process.env.HOST}/api/games`, { gameId })
-  //     // generate new start and target articles from wiki api
-  //     const wikiRes = await axios.get(`${process.env.HOST}/api/wiki`)
-  //     const { start, target } = wikiRes.data
-  //     // create a new game
-  //     const res = await axios.post(`${process.env.HOST}/api/games`, { start, target })
-  //     const { newGameId } = res.data
-  //     const newUserInfo = { clicks: 0, history: [], won: false }
-  //     this.setState({
-  //       gameId: newGameId,
-  //       start,
-  //       target,
-  //       html: '',
-  //       userStats: newUserInfo
-  //     })
-  //   } catch (err) { console.log('Error CREATING the game', err) }
-  // }
-
-  // async joinGame() {
-  //   try {
-  //     // create player instance on the current game
-  //     const { userId, gameId, userStats } = this.state
-  //     await axios.put(`${process.env.HOST}/api/games/${gameId}/${userId}`, { ...userStats })
-  //     // add current game's id to user's game history
-  //     await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
-  //     // get current game
-  //     const res = await axios.get(`${process.env.HOST}/api/games/${gameId}`)
-  //     let { start, target } = res.data
-  //     // get start html
-  //     start = underTitleize(start)
-  //     const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${start}`)
-  //     const html = wikiRes.data
-  //     const { history } = this.state.userStats
-  //     this.setState({
-  //       start,
-  //       target,
-  //       html,
-  //       userStats: {
-  //         ...userStats,
-  //         history: [...history, start]
-  //       }
-  //     })
-  //   } catch (error) { console.log('Error JOINING the game', error) }
-  // }
 
   updateLocalStats(newStats) {
     this.setState({
@@ -245,9 +194,8 @@ export default class Game extends Component {
   async handleClick(evt) {
     evt.preventDefault()
     if (evt.target.tagName !== 'A') return
-    const { clicks, history } = this.state.userStats
+    const { clicks, history, won } = this.state.userStats
     // check if player won
-    let { won } = this.state.userStats
     console.log("WON?", evt.target.title === this.state.target)
     if (evt.target.title === this.state.target) { won = true }
     // update click count, history
@@ -308,112 +256,42 @@ export default class Game extends Component {
     }
   }
 
-
   render() {
-    const { start, target, html, userStats, gameId, startTime, endTime, initTime, pregame, finished } = this.state
+    const { start, target, html, userStats, gameId, startTime, endTime, initTime, pregame, finished, time } = this.state
     // pregame view
-    if (pregame === true) {
-      return (
-        <div id="container">
-          <div id="game-container" style={{ padding: 25 }}>
-            <header className="game-header" style={{ display: "flex", flexDirection: "row", justifyContent: "space-around" }}>
-              <h1 className="game-title" >WikiLinks Game</h1>
-              <GlobalGameInfo />
-              <Login />
-
-            </header>
-            <div className='button-container' style={{ display: "flex", justifyContent: "center" }}>
-              <button onClick={this.generateGlobalGame}>Generate Global Game</button>
-              <button onClick={this.joinGlobalGame}>Join Global Game</button>
-              <button onClick={this.stopGlobalGame}>Stop/Achive Global Game</button>
-            </div>
-            {/* separated divs so we can add pictures, etc */}
-            <div className='pregame-container'>
-              <div className='gameTimer-container' style={{ display: "flex", justifyContent: "center" }}>
-                <h1>Global Game Start in {this.state.time.m}:{this.state.time.s}</h1>
-              </div>
-              <div className='pregame-container-time-remaining' style={{ display: "flex", justifyContent: "center" }}>
-                <h2>Start: {this.state.start}</h2>
-              </div>
-              <div className='pregame-container-time-remaining' style={{ display: "flex", justifyContent: "center" }}>
-                <h2>Target: {this.state.target}</h2>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
-    } else if (finished === true) {
-      console.log('FINISHED IS TRUE AND RENDER')
-      return (
-        <div id="container">
-          <div id="game-container" style={{ padding: 25 }}>
-            <header className="game-header" style={{ display: "flex", flexDirection: "row", justifyContent: "space-around" }}>
-              <h1 className="game-title" >WikiLinks Game</h1>
-              <GlobalGameInfo />
-              <Login />
-
-            </header>
-            <div className='button-container' style={{ display: "flex", justifyContent: "center" }}>
-              <button onClick={this.generateGlobalGame}>Generate Global Game</button>
-              <button onClick={this.joinGlobalGame}>Join Global Game</button>
-              <button onClick={this.stopGlobalGame}>Stop/Achive Global Game</button>
-            </div>
-            <div className='gameover-container' style={{ display: "flex", flexDirection: "column", alignItems: 'center' }}>
-              <h2>Game Finished!</h2>
-              <p>Start: {this.state.start}</p>
-              <p>Target: {this.state.target}</p>
-              <p>History: {this.state.userStats.history.join(' => ')}</p>
-              <p>Clicks: {this.state.userStats.clicks} </p>
-            </div>
-          </div>
-        </div>
-      )
-    }
-
-    else {
-
-      return (
-        <div id='container'>
-          <div id="game-container" style={{ padding: 25 }}>
-            <header className="game-header" style={{ display: "flex", flexDirection: "row", justifyContent: "space-around" }}>
-              <h1 className="game-title" >WikiLinks Game</h1>
-              <GlobalGameInfo />
-              <Login />
-
-            </header>
-            <div className='button-container' style={{ display: "flex", justifyContent: "center" }}>
-              <button onClick={this.generateGlobalGame}>Generate Global Game</button>
-              <button onClick={this.joinGlobalGame}>Join Global Game</button>
-              <button onClick={this.stopGlobalGame}>Stop/Achive Global Game</button>
-            </div>
-            <div className='gameTimer-container' style={{ display: "flex", justifyContent: "center" }}>
-              <h1>Global Game Ends in {this.state.time.m}:{this.state.time.s}</h1>
-            </div>
-            {/* <div>
-            <button onClick={this.generateGame}>Generate Game</button>
-            <button onClick={this.joinGame}>Join Game</button>
-          </div> */}
-            <div
-              className='game-wikipedia-info-container'
-              style={{ display: 'flex', borderStyle: 'solid', paddingLeft: 25 }}
-            >
-              <div
-                className='game-wikipedia-render'
-                style={{ flex: '3', height: '80vh', overflowY: 'scroll' }}
-              >
-                {(html === '') ? null :
-                  <div
-                    className='wiki-article'
-                    onClick={this.handleClick}
-                    dangerouslySetInnerHTML={{ __html: html }}
-                  />
-                }
-              </div>
-              <LeaderboardContainer gameId={gameId} userStats={userStats} start={start} target={target} startTime={startTime} endTime={endTime} initTime={initTime} />
-            </div>
-          </div>
-        </div >
-      )
-    }
+    return (
+      <div id="container">
+        <Navbar
+          generateGlobalGame={this.generateGlobalGame}
+          joinGlobalGame={this.joinGlobalGame}
+          stopGlobalGame={this.stopGlobalGame}
+        />
+        {pregame ?
+          <Pregame
+            time={time}
+            start={start}
+            target={target}
+          />
+          : finished ?
+            <Finished
+              start={start}
+              target={target}
+              userStats={userStats}
+            />
+            : <InGame
+              time={time}
+              html={html}
+              handleClick={this.handleClick}
+              gameId={gameId}
+              userStats={userStats}
+              start={start}
+              target={target}
+              startTime={startTime}
+              endTime={endTime}
+              initTime={initTime}
+            />
+        }
+      </div>
+    )
   }
 }
