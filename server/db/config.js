@@ -1,6 +1,7 @@
 const Firebase = require('firebase/app')
 require('firebase/database')
 require('firebase/auth')
+console.log('ENVIRONMENT: ', process.env.NODE_ENV)
 if (process.env.NODE_ENV !== 'production') require('./credentials')
 
 Firebase.initializeApp({
