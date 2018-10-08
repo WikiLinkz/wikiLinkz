@@ -46,7 +46,7 @@ export default class Game extends Component {
   async componentDidMount() {
     try {
       //find the current game
-      const res = await axios.get(`${process.env.HOST}/api/GlobalGame`)
+      const res = await axios.get(`${process.env.HOST}/api/globalGame`)
       const { gameId, start, target, startTime, endTime, initTime } = res.data
       //check current user
       let userId
@@ -100,7 +100,7 @@ export default class Game extends Component {
   async generateGlobalGame() {
     try {
       // if a Global Game is already running, alert
-      const getGameRes = await axios.get(`${process.env.HOST}/api/GlobalGame`)
+      const getGameRes = await axios.get(`${process.env.HOST}/api/globalGame`)
       if (!getGameRes.data.error) {
         alert('Global Game Already Running')
       } else {
@@ -135,11 +135,11 @@ export default class Game extends Component {
       else {
         // create player instance on the current game
         const { userId, gameId, userStats } = this.state
-        await axios.put(`${process.env.HOST}/api/GlobalGame/${gameId}/${userId}`, { ...userStats })
+        await axios.put(`${process.env.HOST}/api/globalGame/${gameId}/${userId}`, { ...userStats })
         // add current game's id to user's game history
         await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
         // get current game start and target titles
-        const res = await axios.get(`${process.env.HOST}/api/GlobalGame/${gameId}`)
+        const res = await axios.get(`${process.env.HOST}/api/globalGame/${gameId}`)
         let { start, target } = res.data
         // get start html
         start = underTitleize(start)
@@ -195,7 +195,7 @@ export default class Game extends Component {
     await this.setState({ html: wikiRes.data })
     // update player's db instance
     const { gameId, userId, userStats } = this.state
-    await axios.put(`${process.env.HOST}/api/GlobalGame/${gameId}/${userId}`, { ...userStats })
+    await axios.put(`${process.env.HOST}/api/globalGame/${gameId}/${userId}`, { ...userStats })
   }
 
   startTimer() {
