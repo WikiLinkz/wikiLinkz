@@ -309,7 +309,7 @@ export default class Game extends Component {
     // pregame view
     if (pregame === true) {
       return (
-        <div>
+        <div id="container">
           <div id="game-container" style={{ padding: 25 }}>
             <header className="game-header" style={{ display: "flex", flexDirection: "row", justifyContent: "space-around" }}>
               <h1 className="game-title" >WikiLinks Game</h1>
@@ -324,7 +324,7 @@ export default class Game extends Component {
             </div>
             {/* separated divs so we can add pictures, etc */}
             <div className='pregame-container'>
-              <div className='pregame-container-time-remaining' style={{ display: "flex", justifyContent: "center" }}>
+              <div className='gameTimer-container' style={{ display: "flex", justifyContent: "center" }}>
                 <h1>Global Game Start in {this.state.time.m}:{this.state.time.s}</h1>
               </div>
               <div className='pregame-container-time-remaining' style={{ display: "flex", justifyContent: "center" }}>
@@ -340,7 +340,7 @@ export default class Game extends Component {
     } else if (finished === true) {
       console.log('FINISHED IS TRUE AND RENDER')
       return (
-        <div>
+        <div id="container">
           <div id="game-container" style={{ padding: 25 }}>
             <header className="game-header" style={{ display: "flex", flexDirection: "row", justifyContent: "space-around" }}>
               <h1 className="game-title" >WikiLinks Game</h1>
@@ -368,7 +368,7 @@ export default class Game extends Component {
     else {
 
       return (
-        <div>
+        <div id='container'>
           <div id="game-container" style={{ padding: 25 }}>
             <header className="game-header" style={{ display: "flex", flexDirection: "row", justifyContent: "space-around" }}>
               <h1 className="game-title" >WikiLinks Game</h1>
