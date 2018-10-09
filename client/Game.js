@@ -7,6 +7,7 @@ import InGame from './components/InGame'
 import { auth } from '../server/db/config'
 import { underTitleize, titleize, secondsToTime, initializeTimer } from '../server/api/utils'
 import './clean.css'
+import NoGame from './components/NoGame'
 
 if (process.env.NODE_ENV !== 'production') require('../server/db/credentials')
 
@@ -30,7 +31,8 @@ export default class Game extends Component {
       pregame: false,
       seconds: '',
       time: {},
-      finished: false
+      finished: false,
+      inGame: false
     }
 
     this.updateLocalStats = this.updateLocalStats.bind(this)
@@ -48,6 +50,8 @@ export default class Game extends Component {
       //find the current game
       const res = await axios.get(`${process.env.HOST}/api/globalGame`)
       const { gameId, start, target, startTime, endTime, initTime } = res.data
+      let gameCheck
+      gameId ? gameCheck = gameId : gameCheck = null
       //timer
       const initialTimer = initializeTimer(startTime, endTime)
       const { pregame, seconds } = initialTimer
@@ -55,9 +59,9 @@ export default class Game extends Component {
       // check userId and set state
       await auth.onAuthStateChanged(user => {
         userId = user ? user.uid : null;
-        this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds })
+        this.setState({ gameId: gameCheck, start, target, userId, startTime, endTime, initTime, pregame, seconds })
       })
-      this.timer = setInterval(this.countDown, 1000);
+      // this.timer = setInterval(this.countDown, 1000);
     } catch (err) { console.log('Error getting the current game', err) }
   }
 
@@ -73,7 +77,7 @@ export default class Game extends Component {
         seconds: timeToEnd,
         pregame: false
       })
-      await this.joinGlobalGame()
+      // await this.joinGlobalGame()
       this.timer = setInterval(this.countDown, 1000);
     }
     // logic for if game is loaded and is over
@@ -120,9 +124,6 @@ export default class Game extends Component {
           }
         })
         this.timer = setInterval(this.countDown, 1000);
-        setTimeout(() => {
-          this.stopGlobalGame()
-        }, 80000);
       }
     } catch (error) { console.log('Error CREATING the global game', error) }
   }
@@ -154,6 +155,7 @@ export default class Game extends Component {
           start,
           target,
           html,
+          inGame: true,
           userStats: {
             ...userStats,
             history: [...history, start]
@@ -222,7 +224,7 @@ export default class Game extends Component {
   }
 
   render() {
-    const { start, target, html, userStats, gameId, startTime, endTime, initTime, pregame, finished, time } = this.state
+    const { start, target, html, userStats, gameId, startTime, endTime, initTime, pregame, finished, inGame, time } = this.state
     // pregame view
     return (
       <div id="container">
@@ -231,19 +233,10 @@ export default class Game extends Component {
           joinGlobalGame={this.joinGlobalGame}
           stopGlobalGame={this.stopGlobalGame}
         />
-        {pregame ?
-          <Pregame
-            time={time}
-            start={start}
-            target={target}
-          />
-          : finished ?
-            <Finished
-              start={start}
-              target={target}
-              userStats={userStats}
-            />
-            : <InGame
+        {gameId === null
+          ? <NoGame generateGlobalGame={this.generateGlobalGame} />
+          : inGame
+            ? <InGame
               time={time}
               html={html}
               handleClick={this.handleClick}
@@ -255,6 +248,21 @@ export default class Game extends Component {
               endTime={endTime}
               initTime={initTime}
             />
+            : <Pregame
+              time={time}
+              start={start}
+              target={target}
+              pregame={pregame}
+              joinGlobalGame={this.joinGlobalGame}
+            />
+
+          // : finished ?
+          //   <Finished
+          //     start={start}
+          //     target={target}
+          //     userStats={userStats}
+          //   />
+          //   :
         }
       </div>
     )
