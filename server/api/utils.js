@@ -68,6 +68,12 @@ const initializeTimer = (startTime, endTime) => {
       seconds
     }
   }
+  else {
+    return {
+      pregame: false,
+      seconds: 0,
+    }
+  }
 }
 
 module.exports = { getDate, getRandomNums, titleize, underTitleize, secondsToTime, initializeTimer }
