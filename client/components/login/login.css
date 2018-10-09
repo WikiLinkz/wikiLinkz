@@ -5,3 +5,7 @@
 #username-bad {
   color: #f5222d;
 }
+
+#user-info {
+  display: flex;
+}

@@ -1,12 +1,16 @@
 import React from 'react'
+import { withRouter, Route, Switch } from 'react-router-dom'
 import Game from './Game'
+import Stats from './components/Stats'
 
 const App = () => {
   return (
-    <div>
-      <Game />
-    </div>
+    <Switch>
+      <Route path='/stats' component={Stats} />
+      <Route path='/game' component={Game} />
+      <Route exact path='/' component={Game} />
+    </Switch>
   )
 }
 
-export default App
+export default withRouter(App)
