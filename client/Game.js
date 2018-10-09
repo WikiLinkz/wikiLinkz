@@ -120,6 +120,9 @@ export default class Game extends Component {
           }
         })
         this.timer = setInterval(this.countDown, 1000);
+        setTimeout(() => {
+          this.stopGlobalGame()
+        }, 80000);
       }
     } catch (error) { console.log('Error CREATING the global game', error) }
   }

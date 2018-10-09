@@ -30,6 +30,7 @@ router.post('/', async (req, res, next) => {
     //Assign start/end time
     const timeNow = new Date()
     const initTime = timeNow.toString()
+    // decimal below is in minutes
     const startTime = new Date(timeNow.getTime() + .25 * 60000).toString()
     const endTime = new Date(timeNow.getTime() + 1.25 * 60000).toString()
     //Create a new game instance in Firebase
