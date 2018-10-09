@@ -66,6 +66,7 @@ export default class Game extends Component {
   }
 
   async componentDidMount() {
+    clearInterval(this.timer)
     try {
       const globalGameRef = db.ref('GlobalGame')
       await globalGameRef.on('value', async snapshot => {
@@ -84,10 +85,12 @@ export default class Game extends Component {
             userId = user ? user.uid : null;
             this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds })
           })
-          // can't go here!
-          // this.timer = setInterval(this.countDown, 1000)
+          this.timer = setInterval(this.countDown, 1000);
         }
       })
+      if (this.state.seconds !== '') {
+        this.timer = setInterval(this.countDown, 1000)
+      }
     } catch (err) { console.log('Error getting the current game', err) }
   }
 
@@ -149,14 +152,14 @@ export default class Game extends Component {
             won: false
           }
         })
-        this.timer = setInterval(this.countDown, 1000);
+        // this.timer = setInterval(this.countDown, 1000);
       }
     } catch (error) { console.log('Error CREATING the global game', error) }
   }
 
   async joinGlobalGame() {
     try {
-      const { userId, gameId, userStats, start, target } = this.state
+      const { userId, gameId, userStats, start } = this.state
       if (userId) {
         // create player instance on the current game
         await axios.put(`${process.env.HOST}/api/globalGame/${userId}`, { ...userStats })
@@ -239,7 +242,6 @@ export default class Game extends Component {
 
   render() {
     const { start, target, html, userStats, gameId, startTime, endTime, initTime, pregame, finished, inGame, time } = this.state
-    console.log('THIS.STATE:', this.state)
     // pregame view
     return (
       <div id="container">
