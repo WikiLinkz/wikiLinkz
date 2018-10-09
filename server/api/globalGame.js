@@ -94,9 +94,9 @@ router.post('/', async (req, res, next) => {
 router.get('/:gameId', async (req, res, next) => {
   try {
     const gameId = req.params.gameId
-    const gameRef = await db.ref(`GlobalGame/${gameId}`)
-    gameRef.once('value', async (snapshot) => {
-      const data = await snapshot.val()
+    const gameRef = await db.ref(`GlobalGame`)
+    gameRef.once('value', (snapshot) => {
+      const data = snapshot.val()
       const { start, target, clickInfo, startTime, endTime, initTime } = data
       res.send({
         start,
