@@ -222,7 +222,7 @@ export default class Game extends Component {
   }
 
   render() {
-    const { start, target, html, userStats, gameId, startTime, endTime, initTime, pregame, finished, time } = this.state
+    const { start, target, html, userStats, gameId, startTime, endTime, initTime, pregame, finished, time, userId } = this.state
     // pregame view
     return (
       <div id="container">
@@ -242,6 +242,7 @@ export default class Game extends Component {
               start={start}
               target={target}
               userStats={userStats}
+              userId={userId}
             />
             : <InGame
               time={time}
