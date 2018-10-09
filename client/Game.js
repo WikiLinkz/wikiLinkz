@@ -156,23 +156,19 @@ export default class Game extends Component {
 
   async joinGlobalGame() {
     try {
-      // create player instance on the current game
-      const { userId, gameId, userStats } = this.state
-      await axios.put(`${process.env.HOST}/api/globalGame/${userId}`, { ...userStats })
-      // add current game's id to user's game history
-      await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
-      // get current game start and target titles
-      const res = await axios.get(`${process.env.HOST}/api/globalGame/${gameId}`)
-      let { start, target } = res.data
+      const { userId, gameId, userStats, start, target } = this.state
+      if (userId) {
+        // create player instance on the current game
+        await axios.put(`${process.env.HOST}/api/globalGame/${userId}`, { ...userStats })
+        // add current game's id to user's game history
+        await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
+      }
       // get start html
-      start = underTitleize(start)
-      const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${start}`)
+      const underscoredStart = underTitleize(start)
+      const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${underscoredStart}`)
       const html = wikiRes.data
       const { history } = this.state.userStats
-      start = titleize(start)
       this.setState({
-        start,
-        target,
         html,
         inGame: true,
         userStats: {

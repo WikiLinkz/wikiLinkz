@@ -5,7 +5,7 @@ module.exports = router
 
 // time IN SECONDS
 const preGameLength = 5
-const gameLength = 5
+const gameLength = 30
 
 
 
