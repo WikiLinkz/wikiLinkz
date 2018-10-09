@@ -6,7 +6,7 @@ module.exports = router
 // time IN SECONDS
 const preGameLength = 5 * 1000
 const gameLength = 10 * 1000
-const gameFinishedBuffer = 5 * 1000
+const gameFinishedBuffer = .5 * 1000
 
 
 

@@ -178,9 +178,11 @@ export default class Game extends Component {
       this.setState({
         html,
         inGame: true,
+        finished: false,
         userStats: {
-          ...userStats,
-          history: [...history, start]
+          history: [start],
+          clicks: 0,
+          won: false
         }
       })
     } catch (error) { console.log('Error JOINING the global game', error) }
