@@ -11,6 +11,27 @@ import NoGame from './components/NoGame'
 
 if (process.env.NODE_ENV !== 'production') require('../server/db/credentials')
 
+const defaultState = {
+  gameId: null,
+  userId: '',
+  start: '',
+  target: '',
+  html: '',
+  userStats: {
+    history: [],
+    clicks: 0,
+    won: false
+  },
+  startTime: '',
+  endTime: '',
+  initTime: '',
+  pregame: false,
+  seconds: '',
+  time: {},
+  finished: false,
+  inGame: false
+}
+
 export default class Game extends Component {
   constructor() {
     super()
@@ -34,7 +55,6 @@ export default class Game extends Component {
       finished: false,
       inGame: false
     }
-
     this.updateLocalStats = this.updateLocalStats.bind(this)
     this.handleClick = this.handleClick.bind(this)
     this.generateGlobalGame = this.generateGlobalGame.bind(this)
@@ -47,43 +67,27 @@ export default class Game extends Component {
 
   async componentDidMount() {
     try {
-      const globalGameRef = db.ref('GlobalGame/')
+      const globalGameRef = db.ref('GlobalGame')
       await globalGameRef.on('value', async snapshot => {
-        const globalGame = snapshot.val()
-        console.log('START?', globalGame.start)
-        console.log('GLOBAL GAME/ SNAPSHOT:', snapshot.val())
-        //   await db.ref('GlobalGame/' + gameId).on('value', async snapshot => {
-        //     const gameData = snapshot.val()
-        //     if (gameData === null) {
-        //       this.setState({
-        //         start: '',
-        //         target: ''
-        //       })
-        //     }
-        //     else {
-        //       this.setState({
-        //         start: gameData.start,
-        //         target: gameData.target
-        //       })
-        //     }
-        //   })
-        // })
+        const gameData = snapshot.val()
+        if (gameData === null) {
+          this.setState({ ...defaultState })
+        }
+        else {
+          const { gameId, start, target, startTime, endTime, initTime } = gameData
+          const initialTimer = initializeTimer(startTime, endTime)
+          const { pregame, seconds } = initialTimer
+          // check userId and set state
+          let userId
+          // get current userId OR set userId to NULL if guest
+          await auth.onAuthStateChanged(user => {
+            userId = user ? user.uid : null;
+            this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds })
+          })
+          // can't go here!
+          // this.timer = setInterval(this.countDown, 1000)
+        }
       })
-      //find the current game
-      const res = await axios.get(`${process.env.HOST}/api/globalGame`)
-      const { gameId, start, target, startTime, endTime, initTime } = res.data
-      let gameCheck
-      gameId ? gameCheck = gameId : gameCheck = null
-      //timer
-      const initialTimer = initializeTimer(startTime, endTime)
-      const { pregame, seconds } = initialTimer
-      let userId
-      // check userId and set state
-      await auth.onAuthStateChanged(user => {
-        userId = user ? user.uid : null;
-        this.setState({ gameId: gameCheck, start, target, userId, startTime, endTime, initTime, pregame, seconds })
-      })
-      // this.timer = setInterval(this.countDown, 1000);
     } catch (err) { console.log('Error getting the current game', err) }
   }
 
@@ -152,38 +156,30 @@ export default class Game extends Component {
 
   async joinGlobalGame() {
     try {
-      // check if there's a global game
-      const res = await axios.get(`${process.env.HOST}/api/globalGame/`)
-      const { error } = res.data
-      if (error === 'No game running!') {
-        alert('No Global Game Running!')
-      }
-      else {
-        // create player instance on the current game
-        const { userId, gameId, userStats } = this.state
-        await axios.put(`${process.env.HOST}/api/globalGame/${gameId}/${userId}`, { ...userStats })
-        // add current game's id to user's game history
-        await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
-        // get current game start and target titles
-        const res = await axios.get(`${process.env.HOST}/api/globalGame/${gameId}`)
-        let { start, target } = res.data
-        // get start html
-        start = underTitleize(start)
-        const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${start}`)
-        const html = wikiRes.data
-        const { history } = this.state.userStats
-        start = titleize(start)
-        this.setState({
-          start,
-          target,
-          html,
-          inGame: true,
-          userStats: {
-            ...userStats,
-            history: [...history, start]
-          }
-        })
-      }
+      // create player instance on the current game
+      const { userId, gameId, userStats } = this.state
+      await axios.put(`${process.env.HOST}/api/globalGame/${userId}`, { ...userStats })
+      // add current game's id to user's game history
+      await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
+      // get current game start and target titles
+      const res = await axios.get(`${process.env.HOST}/api/globalGame/${gameId}`)
+      let { start, target } = res.data
+      // get start html
+      start = underTitleize(start)
+      const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${start}`)
+      const html = wikiRes.data
+      const { history } = this.state.userStats
+      start = titleize(start)
+      this.setState({
+        start,
+        target,
+        html,
+        inGame: true,
+        userStats: {
+          ...userStats,
+          history: [...history, start]
+        }
+      })
     } catch (error) { console.log('Error JOINING the global game', error) }
   }
 
@@ -247,6 +243,7 @@ export default class Game extends Component {
 
   render() {
     const { start, target, html, userStats, gameId, startTime, endTime, initTime, pregame, finished, inGame, time } = this.state
+    console.log('THIS.STATE:', this.state)
     // pregame view
     return (
       <div id="container">

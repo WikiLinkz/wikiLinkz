@@ -13,25 +13,19 @@ export default class GlobalGameInfo extends Component {
 
   async componentDidMount() {
     await db.ref('GlobalGame').on('value', async snapshot => {
-      snapshot.forEach(async currentGame => {
-
-        const gameId = currentGame.key
-        await db.ref('GlobalGame/' + gameId).on('value', async snapshot => {
-          const gameData = snapshot.val()
-          if (gameData === null) {
-            this.setState({
-              start: '',
-              target: ''
-            })
-          }
-          else {
-            this.setState({
-              start: gameData.start,
-              target: gameData.target
-            })
-          }
+      const gameData = snapshot.val()
+      if (gameData === null) {
+        this.setState({
+          start: '',
+          target: ''
         })
-      })
+      }
+      else {
+        this.setState({
+          start: gameData.start,
+          target: gameData.target
+        })
+      }
     })
   }
 

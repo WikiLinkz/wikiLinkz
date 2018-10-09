@@ -4,8 +4,8 @@ const axios = require('axios')
 module.exports = router
 
 // time IN SECONDS
-const preGameLength = 10
-const gameLength = 10
+const preGameLength = 5
+const gameLength = 5
 
 
 
@@ -43,7 +43,7 @@ router.post('/', async (req, res, next) => {
     //Create a new game instance in Firebase
     const { start, target } = req.body
     const gameId = await db.ref('GlobalGame').push().key
-    await db.ref('GlobalGame/' + gameId).set({
+    await db.ref('GlobalGame/').set({
       gameId: gameId,
       start: start,
       target: target,
@@ -57,39 +57,38 @@ router.post('/', async (req, res, next) => {
     // puts game in archive and delete it after
     setTimeout(async () => {
       await db.ref('GlobalGame').once('value', async snapshot => {
-        snapshot.forEach(async currentGame => {
-          const gameId = currentGame.key
-          const gameData = currentGame.val()
-          await db.ref('GlobalGameArchive/' + gameId).set({
-            gameData
-          })
+        const currentGame = snapshot.val()
+        const gameId = currentGame.gameId
+        await db.ref('GlobalGameArchive/' + gameId).set({
+          ...currentGame
         })
       })
       await db.ref('GlobalGame').remove()
-    }, (gameLength + preGameLength + 10) * 1000)
+      // add 10 seconds after game end before deleting/archiving
+    }, (gameLength + preGameLength + 5) * 1000)
   } catch (err) {
     next(err)
   }
 })
 
 // no longer necessary
-router.put('/stopGlobalGame', async (req, res, next) => {
-  try {
-    await db.ref('GlobalGame').once('value', async snapshot => {
-      snapshot.forEach(async currentGame => {
-        const gameId = currentGame.key
-        const gameData = currentGame.val()
-        await db.ref('GlobalGameArchive/' + gameId).set({
-          gameData
-        })
-      })
-    })
-    await db.ref('GlobalGame').remove()
-    res.sendStatus(204)
-  } catch (error) {
-    next(error)
-  }
-})
+// router.put('/stopGlobalGame', async (req, res, next) => {
+//   try {
+//     await db.ref('GlobalGame').once('value', async snapshot => {
+//       snapshot.forEach(async currentGame => {
+//         const gameId = currentGame.key
+//         const gameData = currentGame.val()
+//         await db.ref('GlobalGameArchive/' + gameId).set({
+//           gameData
+//         })
+//       })
+//     })
+//     await db.ref('GlobalGame').remove()
+//     res.sendStatus(204)
+//   } catch (error) {
+//     next(error)
+//   }
+// })
 
 // fetches current game start and target, called by join game
 router.get('/:gameId', async (req, res, next) => {
@@ -114,15 +113,16 @@ router.get('/:gameId', async (req, res, next) => {
 })
 
 // creates a new player in the current game with player game info and adds the game to user's history, called from join a game
-router.put('/:gameId/:userId', async (req, res, next) => {
+router.put('/:userId', async (req, res, next) => {
   try {
-    const { gameId, userId } = req.params
+    const { userId } = req.params
     const { clicks, won } = req.body
-    await db.ref(`GlobalGame/${gameId}/clickInfo/${userId}`).update({
+    // put username here!
+    await db.ref(`GlobalGame/clickInfo/${userId}`).update({
       clicks,
       won
     })
-    res.sendStatus(200)
+    res.sendStatus(201)
   } catch (err) {
     next(err)
   }
