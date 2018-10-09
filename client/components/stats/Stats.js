@@ -3,50 +3,12 @@ import axios from 'axios'
 import { auth } from '../../../server/db/config'
 import Chart from './Chart'
 
-const dummydata = {
-  '-LOJJP9IpAJlmbsSTCQN': {
-    start: '1',
-    target: '5',
-    clicks: 5,
-    history: "1,2,3,4,5",
-    won: true
-  },
-  '-LOJJlIMd1knLkWZuDMx': {
-    start: '2',
-    target: '10',
-    clicks: 10,
-    history: "2,3,4,1,5,6,7,8,9,10",
-    won: true
-  },
-  '-LOJO09EEurEYFTlP-38': {
-    start: '5',
-    target: '9',
-    clicks: 3,
-    history: "5,6,7",
-    won: false
-  },
-  '-LOJRDscRV8aMHN5RSXa': {
-    start: '1',
-    target: '5',
-    clicks: 1,
-    history: '9',
-    won: false
-  },
-  '-LOJSDGqHBLAfxvht98W': {
-    start: '1',
-    target: '5',
-    clicks: 0,
-    history: "",
-    won: false
-  }
-}
-
 class Stats extends Component {
   constructor(props) {
     super(props)
     this.state = {
       userId: '',
-      games: '',
+      games: [],
     }
   }
 
@@ -57,16 +19,25 @@ class Stats extends Component {
         userId = user.uid
         const res = await axios.get(`/api/users/${userId}/games`)
         const games = res.data
-        console.log('GAMES', games)
-        this.setState({ games })
+        console.log('games: ', games)
+        const gameIds = Object.keys(games)
+        console.log('gameIds: ', gameIds)
+        const lastTenGames = gameIds.length < 10 ? gameIds : gameIds.slice(gameIds.length - 10)
+        console.log('lastTenGames: ', lastTenGames)
+        const gamesArr = lastTenGames.map(key => {
+          return { ...games[key], game: `${games[key]['start']} - ${games[key]['target']}` }
+        })
+        console.log('gamesArr: ', gamesArr)
+        this.setState({ games: gamesArr })
       }
     })
-    // const lastTenGames = games.length < 10 ? games : games.slice(games.length - 10)
   }
 
   render() {
     return (
-      <Chart data={dummydata} />
+      <div className='container'>
+        <Chart games={this.state.games} />
+      </div>
     )
   }
 }
