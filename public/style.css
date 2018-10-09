@@ -77,3 +77,11 @@ form div {
 #user-home {
   flex-direction: column;
 }
+
+.pregame-container-join-button:disabled {
+  background: red
+}
+
+.pregame-container-join-button:enabled {
+  background: green
+}

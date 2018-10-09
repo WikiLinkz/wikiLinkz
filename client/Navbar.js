@@ -1,7 +1,7 @@
 import React from 'react'
 import GlobalGameInfo from './components/GlobalGameInfo'
 import Login from './components/login/Login'
-import Buttons from './Buttons'
+// import Buttons from './Buttons'
 
 const Navbar = (props) => {
   return (
@@ -11,7 +11,7 @@ const Navbar = (props) => {
         <GlobalGameInfo />
         <Login />
       </header>
-      <Buttons props={props} />
+      {/* <Buttons props={props} /> */}
     </div>
   )
 }

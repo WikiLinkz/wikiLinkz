@@ -4,8 +4,9 @@ const axios = require('axios')
 module.exports = router
 
 // time IN SECONDS
-const preGameLength = 5
-const gameLength = 30
+const preGameLength = 5 * 1000
+const gameLength = 10 * 1000
+const gameFinishedBuffer = 5 * 1000
 
 
 
@@ -38,8 +39,8 @@ router.post('/', async (req, res, next) => {
     const timeNow = new Date()
     const initTime = timeNow.toString()
     // decimal below is in minutes
-    const startTime = new Date(timeNow.getTime() + preGameLength * 1000).toString()
-    const endTime = new Date(timeNow.getTime() + (gameLength + preGameLength) * 1000).toString()
+    const startTime = new Date(timeNow.getTime() + preGameLength).toString()
+    const endTime = new Date(timeNow.getTime() + (gameLength + preGameLength)).toString()
     //Create a new game instance in Firebase
     const { start, target } = req.body
     const gameId = await db.ref('GlobalGame').push().key
@@ -47,15 +48,23 @@ router.post('/', async (req, res, next) => {
       gameId: gameId,
       start: start,
       target: target,
-      isRunning: false,
       clickInfo: true,
       startTime: startTime,
       endTime: endTime,
-      initTime: initTime
+      initTime: initTime,
+      pregame: true,
     })
     res.send({ gameId, startTime, endTime, initTime })
     // puts game in archive and delete it after
     setTimeout(async () => {
+      await db.ref('GlobalGame').update({
+        pregame: false
+      })
+    }, preGameLength)
+    setTimeout(async () => {
+      await db.ref('GlobalGame').update({
+        finished: true
+      })
       await db.ref('GlobalGame').once('value', async snapshot => {
         const currentGame = snapshot.val()
         const gameId = currentGame.gameId
@@ -63,9 +72,12 @@ router.post('/', async (req, res, next) => {
           ...currentGame
         })
       })
+
+    }, gameLength + preGameLength)
+    setTimeout(async () => {
       await db.ref('GlobalGame').remove()
-      // add 10 seconds after game end before deleting/archiving
-    }, (gameLength + preGameLength + 5) * 1000)
+      // add gameFinishedBuffer after game end before deleting
+    }, (gameLength + preGameLength + gameFinishedBuffer))
   } catch (err) {
     next(err)
   }
