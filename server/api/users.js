@@ -23,8 +23,11 @@ router.get('/:userId/games', async (req, res, next) => {
   try {
     const { userId } = req.params
     await db.ref(`Users/${userId}/gameHistory`).once('value', async (snapshot) => {
-      const gameIds = Object.keys(snapshot.val())
-      res.send(gameIds)
+      const games = snapshot.val()
+      console.log('====================================')
+      console.log(games)
+      console.log('====================================')
+      res.send(games)
     })
   } catch (err) {
     next(err)

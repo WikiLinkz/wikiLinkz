@@ -1,7 +1,7 @@
 import React from 'react'
 import { withRouter, Route, Switch } from 'react-router-dom'
 import Game from './Game'
-import Stats from './components/Stats'
+import Stats from './components/stats/Stats'
 
 const App = () => {
   return (

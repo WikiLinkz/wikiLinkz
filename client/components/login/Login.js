@@ -61,7 +61,7 @@ export default class Login extends Component {
 
   render() {
     const { user, newUser, userName } = this.state
-    if (user && newUser === false) return <LoginComplete userName={userName} logout={this.logout} />
+    if (user && newUser === false) return <LoginComplete userName={userName} userId={user.uid} logout={this.logout} />
     return (
       <div id="login" >
         {
