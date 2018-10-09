@@ -1,6 +1,13 @@
 const router = require('express').Router()
 const { db } = require('../db/config')
+const axios = require('axios')
 module.exports = router
+
+// time IN SECONDS
+const preGameLength = 10
+const gameLength = 10
+
+
 
 // finds Global Game, returns start, target, gameId, called from componentDidMount
 router.get('/', async (req, res, next) => {
@@ -31,8 +38,8 @@ router.post('/', async (req, res, next) => {
     const timeNow = new Date()
     const initTime = timeNow.toString()
     // decimal below is in minutes
-    const startTime = new Date(timeNow.getTime() + .25 * 60000).toString()
-    const endTime = new Date(timeNow.getTime() + 1.25 * 60000).toString()
+    const startTime = new Date(timeNow.getTime() + preGameLength * 1000).toString()
+    const endTime = new Date(timeNow.getTime() + (gameLength + preGameLength) * 1000).toString()
     //Create a new game instance in Firebase
     const { start, target } = req.body
     const gameId = await db.ref('GlobalGame').push().key
@@ -47,11 +54,25 @@ router.post('/', async (req, res, next) => {
       initTime: initTime
     })
     res.send({ gameId, startTime, endTime, initTime })
+    // puts game in archive and delete it after
+    setTimeout(async () => {
+      await db.ref('GlobalGame').once('value', async snapshot => {
+        snapshot.forEach(async currentGame => {
+          const gameId = currentGame.key
+          const gameData = currentGame.val()
+          await db.ref('GlobalGameArchive/' + gameId).set({
+            gameData
+          })
+        })
+      })
+      await db.ref('GlobalGame').remove()
+    }, (gameLength + preGameLength + 10) * 1000)
   } catch (err) {
     next(err)
   }
 })
 
+// no longer necessary
 router.put('/stopGlobalGame', async (req, res, next) => {
   try {
     await db.ref('GlobalGame').once('value', async snapshot => {

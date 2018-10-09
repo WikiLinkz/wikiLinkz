@@ -4,7 +4,7 @@ import Navbar from './Navbar'
 import Pregame from './components/Pregame'
 import Finished from './components/Finished'
 import InGame from './components/InGame'
-import { auth } from '../server/db/config'
+import { auth, db } from '../server/db/config'
 import { underTitleize, titleize, secondsToTime, initializeTimer } from '../server/api/utils'
 import './clean.css'
 import NoGame from './components/NoGame'
@@ -47,6 +47,28 @@ export default class Game extends Component {
 
   async componentDidMount() {
     try {
+      const globalGameRef = db.ref('GlobalGame/')
+      await globalGameRef.on('value', async snapshot => {
+        const globalGame = snapshot.val()
+        console.log('START?', globalGame.start)
+        console.log('GLOBAL GAME/ SNAPSHOT:', snapshot.val())
+        //   await db.ref('GlobalGame/' + gameId).on('value', async snapshot => {
+        //     const gameData = snapshot.val()
+        //     if (gameData === null) {
+        //       this.setState({
+        //         start: '',
+        //         target: ''
+        //       })
+        //     }
+        //     else {
+        //       this.setState({
+        //         start: gameData.start,
+        //         target: gameData.target
+        //       })
+        //     }
+        //   })
+        // })
+      })
       //find the current game
       const res = await axios.get(`${process.env.HOST}/api/globalGame`)
       const { gameId, start, target, startTime, endTime, initTime } = res.data
