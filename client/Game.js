@@ -48,15 +48,15 @@ export default class Game extends Component {
       //find the current game
       const res = await axios.get(`${process.env.HOST}/api/globalGame`)
       const { gameId, start, target, startTime, endTime, initTime } = res.data
-      //check current user
-      let userId
-      await auth.onAuthStateChanged(user => {
-        userId = user ? user.uid : null
-      })
       //timer
       const initialTimer = initializeTimer(startTime, endTime)
       const { pregame, seconds } = initialTimer
-      this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds })
+      let userId
+      // check userId and set state
+      await auth.onAuthStateChanged(user => {
+        userId = user ? user.uid : null;
+        this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds })
+      })
       this.timer = setInterval(this.countDown, 1000);
     } catch (err) { console.log('Error getting the current game', err) }
   }
