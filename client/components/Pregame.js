@@ -5,7 +5,9 @@ const Pregame = (props) => {
   return (
     <div className='pregame-container'>
       <div className='gameTimer-container' style={{ display: "flex", justifyContent: "center" }}>
-        <h1>Global Game Starts in {time.m}:{time.s}</h1>
+        {pregame
+          ? <h1>Global Game Starts in {time.m}:{time.s}</h1>
+          : <h1>Global Game Ends in {time.m}:{time.s}</h1>}
       </div>
       <div className='pregame-container-time-remaining' style={{ display: "flex", justifyContent: "center" }}>
         <h2>Start: {start}</h2>

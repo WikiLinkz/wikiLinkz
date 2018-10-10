@@ -54,23 +54,19 @@ const initializeTimer = (startTime, endTime) => {
   // logic for if global game is in pregame state
   if (timeToGameStart > 0) {
     return {
-      pregame: true,
       seconds: timeToGameStart
     }
   }
   // logic for if global game is in game state
-  else if (timeToGameStart < 0) {
+  else if (timeToGameStart <= 0) {
     const timeToEnd = ((Date.parse(endTime) - Date.parse(timeNow)) / 1000)
-    const pregame = false
     const seconds = timeToEnd < 0 ? 0 : timeToEnd
     return {
-      pregame,
       seconds
     }
   }
   else {
     return {
-      pregame: false,
       seconds: 0,
     }
   }
