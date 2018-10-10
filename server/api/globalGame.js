@@ -1,11 +1,10 @@
 const router = require('express').Router()
 const { db } = require('../db/config')
-const axios = require('axios')
 module.exports = router
 
 // time IN SECONDS BEFORE THE 1000
-const preGameLength = 10 * 1000
-const gameLength = 120 * 1000
+const preGameLength = 5 * 1000
+const gameLength = 20 * 1000
 const gameFinishedBuffer = .5 * 1000
 
 //creates a new game instance in db, called by generate game
@@ -58,37 +57,39 @@ router.post('/', async (req, res, next) => {
   }
 })
 
-// fetches current game start and target, called by join game
-router.get('/:gameId', async (req, res, next) => {
-  try {
-    const gameId = req.params.gameId
-    const gameRef = await db.ref(`GlobalGame`)
-    gameRef.once('value', (snapshot) => {
-      const data = snapshot.val()
-      const { start, target, clickInfo, startTime, endTime, initTime } = data
-      res.send({
-        start,
-        target,
-        clickInfo,
-        startTime,
-        endTime,
-        initTime
-      })
-    })
-  } catch (err) {
-    next(err)
-  }
-})
+// // fetches current game start and target, called by join game
+// router.get('/:gameId', async (req, res, next) => {
+//   try {
+//     const gameId = req.params.gameId
+//     const gameRef = await db.ref(`GlobalGame`)
+//     gameRef.once('value', (snapshot) => {
+//       const data = snapshot.val()
+//       const { start, target, clickInfo, startTime, endTime, initTime } = data
+//       res.send({
+//         start,
+//         target,
+//         clickInfo,
+//         startTime,
+//         endTime,
+//         initTime
+//       })
+//     })
+//   } catch (err) {
+//     next(err)
+//   }
+// })
 
 // creates a new player in the current game with player game info and adds the game to user's history, called from join a game
 router.put('/:userId', async (req, res, next) => {
   try {
     const { userId } = req.params
-    const { clicks, won } = req.body
+    const { clicks, won, username } = req.body
     // put username here!
+    console.log('userId', userId, 'clicks:', clicks, 'won:', won, 'username', username)
     await db.ref(`GlobalGame/clickInfo/${userId}`).update({
       clicks,
-      won
+      won,
+      username
     })
     res.sendStatus(201)
   } catch (err) {

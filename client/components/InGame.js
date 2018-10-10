@@ -2,7 +2,7 @@ import React from 'react'
 import LeaderboardContainer from './leaderboard/LeaderboardContainer'
 
 const InGame = (props) => {
-  const { time, html, handleClick, gameId, userStats, start, target, startTime, endTime, initTime } = props
+  const { time, html, handleClick, userStats, start, target, startTime, endTime, initTime } = props
   return (
     <div>
       <div
@@ -27,7 +27,7 @@ const InGame = (props) => {
             />
           }
         </div>
-        <LeaderboardContainer gameId={gameId} userStats={userStats} start={start} target={target} startTime={startTime} endTime={endTime} initTime={initTime} />
+        <LeaderboardContainer userStats={userStats} start={start} target={target} startTime={startTime} endTime={endTime} initTime={initTime} />
       </div>
     </div>
   )
