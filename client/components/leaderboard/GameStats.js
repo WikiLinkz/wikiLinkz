@@ -10,8 +10,8 @@ export default class GameStats extends Component {
     }
   }
 
-  async componentDidMount() {
-    const gameRef = await db.ref('GlobalGame')
+  componentDidMount() {
+    const gameRef = db.ref('GlobalGame')
     gameRef.on('value', snapshot => {
       if (snapshot.val() !== null) {
         const clickInfo = snapshot.val().clickInfo
@@ -22,6 +22,11 @@ export default class GameStats extends Component {
       }
     })
   }
+
+  // componentWillUnmount() {
+  //   const gameRef = db.ref('GlobalGame')
+  //   gameRef.off()
+  // }
 
   // async componentDidUpdate(prevProps) {
   //   const oldGame = prevProps.gameId
@@ -45,7 +50,7 @@ export default class GameStats extends Component {
     const { players, clickInfo } = this.state
     return (
       <div id="leaders">
-        <h3>Leaders</h3>
+        <h3>Players</h3>
         <div id="players">
           {
             players.map(player => {

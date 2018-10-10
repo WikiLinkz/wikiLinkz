@@ -178,7 +178,11 @@ export default class Game extends Component {
       const { userId, gameId, userStats, start } = this.state
       if (userId) {
         // create player instance on the current game
-        await axios.put(`${process.env.HOST}/api/globalGame/${userId}`, { ...userStats })
+        await axios.put(`${process.env.HOST}/api/globalGame/${userId}`, {
+          clicks: 0,
+          won: false,
+          username: userStats.username
+        })
         // add current game's id to user's game history
         await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
       }
