@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import { BarChart, Bar, XAxis, Tooltip } from 'recharts'
 
 class CustomTooltip extends Component {
   render() {
@@ -9,7 +9,6 @@ class CustomTooltip extends Component {
       const { payload } = this.props
       const { history } = payload[0].payload
       const titles = history.split(',')
-      console.log(titles)
       return (
         <div className='custom-tooltip'>
           {titles.map(title => {
@@ -27,14 +26,11 @@ class Chart extends Component {
   render() {
     const { games } = this.props
     return (
-      <BarChart width={1000} height={300} data={games}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" />
+      <BarChart width={1000} height={500} data={games}
+        margin={{ top: 5, right: 30, left: 20, bottom: 5 }} >
         <XAxis dataKey="game" />
-        <YAxis />
         <Tooltip content={<CustomTooltip />} />
-        <Legend />
-        <Bar dataKey="clicks" barSize={40} fill="red" />
+        <Bar dataKey="clicks" barSize={40} fill={games.won ? "orange" : "blue"} label={{ fill: 'white' }} />
       </BarChart>
     )
   }
