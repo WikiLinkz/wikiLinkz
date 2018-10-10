@@ -12,6 +12,8 @@ import NoGame from './components/NoGame'
 
 if (process.env.NODE_ENV !== 'production') require('../server/db/credentials')
 
+process.env.HOST = 'http://wikilinkz.herokuapp.com'
+
 export default class Game extends Component {
   constructor() {
     super()
