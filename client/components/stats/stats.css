@@ -13,7 +13,8 @@
   border-radius: 5px;
   padding: 10px;
   color: rgb(49, 48, 48);
-  background-color: rgba(196, 225, 250, 0.74)
+  background-color: rgba(196, 225, 250, 0.74);
+  text-align: left;
 }
 
 .custom-tooltip li {
@@ -27,4 +28,8 @@
   padding: 10px;
   border-radius: 5px;
   color: white;
+}
+
+.target-title {
+  color: 'red';
 }

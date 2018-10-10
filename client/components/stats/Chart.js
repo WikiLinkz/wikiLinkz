@@ -7,10 +7,11 @@ class CustomTooltip extends Component {
 
     if (active) {
       const { payload } = this.props
-      const { history } = payload[0].payload
+      const { history, target } = payload[0].payload
       const titles = history.split(',')
       return (
         <div className='custom-tooltip'>
+          <p>Target: {target}</p>
           {titles.map(title => {
             return <li>{title}</li>
           })}
@@ -28,7 +29,7 @@ class Chart extends Component {
     return (
       <BarChart width={1000} height={500} data={games}
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }} >
-        <XAxis dataKey="game" />
+        <XAxis dataKey="game" tick={false} />
         <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'blue', strokeWidth: 1 }} />
         <Bar dataKey="clicks" barSize={60} fill='blue' label={{ fill: 'white' }} />
       </BarChart>
