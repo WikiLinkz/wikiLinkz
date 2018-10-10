@@ -3,7 +3,7 @@ const { db } = require('../db/config')
 const axios = require('axios')
 module.exports = router
 
-// time IN SECONDS
+// time IN SECONDS BEFORE THE 1000
 const preGameLength = 5 * 1000
 const gameLength = 10 * 1000
 const gameFinishedBuffer = .5 * 1000
@@ -11,26 +11,26 @@ const gameFinishedBuffer = .5 * 1000
 
 
 // finds Global Game, returns start, target, gameId, called from componentDidMount
-router.get('/', async (req, res, next) => {
-  try {
-    await db.ref('GlobalGame').once('value', snapshot => {
-      if (snapshot.val() === null) {
-        res.send({ error: 'No game running!' })
-      }
-      snapshot.forEach(currentGame => {
-        const gameId = currentGame.key
-        const gameRef = db.ref(`GlobalGame/${gameId}`)
-        gameRef.once('value', async (snapshot) => {
-          const data = snapshot.val()
-          const { gameId, start, target, startTime, endTime, initTime } = data
-          res.send({ gameId, start, target, startTime, endTime, initTime })
-        })
-      })
-    })
-  } catch (error) {
-    next(error)
-  }
-})
+// router.get('/', async (req, res, next) => {
+//   try {
+//     await db.ref('GlobalGame').once('value', snapshot => {
+//       if (snapshot.val() === null) {
+//         res.send({ error: 'No game running!' })
+//       }
+//       snapshot.forEach(currentGame => {
+//         const gameId = currentGame.key
+//         const gameRef = db.ref(`GlobalGame/${gameId}`)
+//         gameRef.once('value', async (snapshot) => {
+//           const data = snapshot.val()
+//           const { gameId, start, target, startTime, endTime, initTime } = data
+//           res.send({ gameId, start, target, startTime, endTime, initTime })
+//         })
+//       })
+//     })
+//   } catch (error) {
+//     next(error)
+//   }
+// })
 
 //creates a new game instance in db, called by generate game
 router.post('/', async (req, res, next) => {

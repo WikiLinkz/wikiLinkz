@@ -138,26 +138,25 @@ export default class Game extends Component {
   async generateGlobalGame() {
     try {
       // if a Global Game is already running, alert
-      const getGameRes = await axios.get(`${process.env.HOST}/api/globalGame`)
-      if (!getGameRes.data.error) {
-        alert('Global Game Already Running')
-      } else {
-        // generate new start and target articles from wiki api
-        const wikiRes = await axios.get(`${process.env.HOST}/api/wiki`)
-        const { start, target } = wikiRes.data
-        // create a new game with timer
-        const res = await axios.post(`${process.env.HOST}/api/globalGame/`, { start, target })
-        const { gameId, startTime, endTime, initTime } = res.data
-        const timeNow = new Date()
-        const timeToGameStart = ((Date.parse(startTime) - Date.parse(timeNow)) / 1000)
-        this.setState({
-          gameId, start, target, startTime, endTime, initTime, pregame: true, seconds: timeToGameStart, finished: false, userStats: {
-            history: [],
-            clicks: 0,
-            won: false
-          }
-        })
-      }
+      // const getGameRes = await axios.get(`${process.env.HOST}/api/globalGame`)
+      // if (!getGameRes.data.error) {
+      //   alert('Global Game Already Running')
+      // } else {
+      // generate new start and target articles from wiki api
+      const wikiRes = await axios.get(`${process.env.HOST}/api/wiki`)
+      const { start, target } = wikiRes.data
+      // create a new game with timer
+      const res = await axios.post(`${process.env.HOST}/api/globalGame/`, { start, target })
+      const { gameId, startTime, endTime, initTime } = res.data
+      const timeNow = new Date()
+      const timeToGameStart = ((Date.parse(startTime) - Date.parse(timeNow)) / 1000)
+      this.setState({
+        gameId, start, target, startTime, endTime, initTime, pregame: true, seconds: timeToGameStart, finished: false, userStats: {
+          history: [],
+          clicks: 0,
+          won: false
+        }
+      })
     } catch (error) { console.log('Error CREATING the global game', error) }
   }
 
