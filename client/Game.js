@@ -4,9 +4,11 @@ import Navbar from './Navbar'
 import Pregame from './components/Pregame'
 import Finished from './components/Finished'
 import InGame from './components/InGame'
-import { auth } from '../server/db/config'
+import { auth, db } from '../server/db/config'
 import { underTitleize, titleize, secondsToTime, initializeTimer } from '../server/api/utils'
 import './clean.css'
+import './game.css'
+import NoGame from './components/NoGame'
 
 if (process.env.NODE_ENV !== 'production') require('../server/db/credentials')
 
@@ -30,9 +32,9 @@ export default class Game extends Component {
       pregame: false,
       seconds: '',
       time: {},
-      finished: false
+      finished: false,
+      inGame: false,
     }
-
     this.updateLocalStats = this.updateLocalStats.bind(this)
     this.handleClick = this.handleClick.bind(this)
     this.generateGlobalGame = this.generateGlobalGame.bind(this)
@@ -44,122 +46,103 @@ export default class Game extends Component {
   }
 
   async componentDidMount() {
+    clearInterval(this.timer)
     try {
-      //find the current game
-      const res = await axios.get(`${process.env.HOST}/api/globalGame`)
-      const { gameId, start, target, startTime, endTime, initTime } = res.data
-      //timer
-      const initialTimer = initializeTimer(startTime, endTime)
-      const { pregame, seconds } = initialTimer
-      let userId
-      // check userId and set state
-      await auth.onAuthStateChanged(user => {
-        userId = user ? user.uid : null;
-        this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds })
+      const globalGameRef = db.ref('GlobalGame')
+      globalGameRef.on('value', async snapshot => {
+        const gameData = snapshot.val()
+        if (gameData === null) {
+          this.setState({ pregame: true, inGame: false, gameId: null })
+        }
+        else {
+          const { gameId, start, target, startTime, endTime, initTime } = gameData
+          const initialTimer = initializeTimer(startTime, endTime)
+          const { pregame, seconds } = initialTimer
+          // check userId and set state
+          let userId, finished
+          // get current userId OR set userId to NULL if guest
+          await auth.onAuthStateChanged(user => {
+            userId = user ? user.uid : null;
+            finished = gameData.finished ? finished = true : finished = false
+            if (this.state.finished) {
+              this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds, finished: true })
+            } else {
+              this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds, finished })
+            }
+          })
+        }
       })
-      this.timer = setInterval(this.countDown, 1000);
+      if (this.state.seconds !== '') {
+      }
     } catch (err) { console.log('Error getting the current game', err) }
   }
 
-  async componentDidUpdate() {
-    // logic for if pregame ticker is at 0 and component is already loaded
-    const { pregame, seconds, endTime, finished } = this.state
-
-    if (pregame === true && seconds === 0) {
-      clearInterval(this.timer)
-      const timeNow = new Date()
-      const timeToEnd = ((Date.parse(endTime) - Date.parse(timeNow)) / 1000)
-      await this.setState({
-        seconds: timeToEnd,
-        pregame: false
-      })
-      await this.joinGlobalGame()
-      this.timer = setInterval(this.countDown, 1000);
-    }
-    // logic for if game is loaded and is over
-    else if (pregame === false && seconds === 0 && finished === false) {
-      clearInterval(this.timer)
-      this.setState({
-        finished: true,
-        pregame: false,
-      })
-    }
-  }
-
   updateLocalStats(newStats) {
-    this.setState({
-      userStats: {
-        clicks: newStats.updatedClicks,
-        history: newStats.updatedHistory,
-        won: newStats.updatedWon
-      }
-    })
+    if (newStats.updatedWon) {
+      this.setState({
+        userStats: {
+          clicks: newStats.updatedClicks,
+          history: newStats.updatedHistory,
+          won: newStats.updatedWon,
+        },
+        finished: true,
+        inGame: false
+      })
+    } else {
+      this.setState({
+        userStats: {
+          clicks: newStats.updatedClicks,
+          history: newStats.updatedHistory,
+          won: newStats.updatedWon
+        }
+      })
+    }
   }
 
   // global game functions
   async generateGlobalGame() {
     try {
-      // if a Global Game is already running, alert
-      const getGameRes = await axios.get(`${process.env.HOST}/api/globalGame`)
-      if (!getGameRes.data.error) {
-        alert('Global Game Already Running')
-      } else {
-        // generate new start and target articles from wiki api
-        const wikiRes = await axios.get(`${process.env.HOST}/api/wiki`)
-        const { start, target } = wikiRes.data
-        // create a new game with timer
-        const res = await axios.post(`${process.env.HOST}/api/globalGame/`, { start, target })
-        const { gameId, startTime, endTime, initTime } = res.data
-        const timeNow = new Date()
-        const timeToGameStart = ((Date.parse(startTime) - Date.parse(timeNow)) / 1000)
-        this.setState({
-          gameId, start, target, startTime, endTime, initTime, pregame: true, seconds: timeToGameStart, finished: false, userStats: {
-            history: [],
-            clicks: 0,
-            won: false
-          }
-        })
-        this.timer = setInterval(this.countDown, 1000);
-        setTimeout(() => {
-          this.stopGlobalGame()
-        }, 80000);
-      }
+      // generate new start and target articles from wiki api
+      const wikiRes = await axios.get(`${process.env.HOST}/api/wiki`)
+      const { start, target } = wikiRes.data
+      // create a new game with timer
+      const res = await axios.post(`${process.env.HOST}/api/globalGame/`, { start, target })
+      const { gameId, startTime, endTime, initTime } = res.data
+      const timeNow = new Date()
+      const timeToGameStart = ((Date.parse(startTime) - Date.parse(timeNow)) / 1000)
+      this.setState({
+        gameId, start, target, startTime, endTime, initTime, pregame: true, seconds: timeToGameStart, finished: false, userStats: {
+          history: [],
+          clicks: 0,
+          won: false
+        }
+      })
     } catch (error) { console.log('Error CREATING the global game', error) }
   }
 
   async joinGlobalGame() {
     try {
-      // check if there's a global game
-      const res = await axios.get(`${process.env.HOST}/api/globalGame/`)
-      const { error } = res.data
-      if (error === 'No game running!') {
-        alert('No Global Game Running!')
-      }
-      else {
+      const { userId, gameId, userStats, start } = this.state
+      if (userId) {
         // create player instance on the current game
-        const { userId, gameId, userStats } = this.state
-        await axios.put(`${process.env.HOST}/api/globalGame/${gameId}/${userId}`, { ...userStats })
+        await axios.put(`${process.env.HOST}/api/globalGame/${userId}`, { ...userStats })
         // add current game's id to user's game history
         await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
-        // get current game start and target titles
-        const res = await axios.get(`${process.env.HOST}/api/globalGame/${gameId}`)
-        let { start, target } = res.data
-        // get start html
-        start = underTitleize(start)
-        const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${start}`)
-        const html = wikiRes.data
-        const { history } = this.state.userStats
-        start = titleize(start)
-        this.setState({
-          start,
-          target,
-          html,
-          userStats: {
-            ...userStats,
-            history: [...history, start]
-          }
-        })
       }
+      // get start html
+      const underscoredStart = underTitleize(start)
+      const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${underscoredStart}`)
+      const html = wikiRes.data
+      this.setState({
+        html,
+        inGame: true,
+        finished: false,
+        userStats: {
+          history: [start],
+          clicks: 0,
+          won: false
+        }
+      })
     } catch (error) { console.log('Error JOINING the global game', error) }
   }
 
@@ -181,10 +164,11 @@ export default class Game extends Component {
   async handleClick(evt) {
     evt.preventDefault()
     if (evt.target.tagName !== 'A') return
-    const { clicks, history, won } = this.state.userStats
+    let { clicks, history, won } = this.state.userStats
     // check if player won
-    console.log("WON?", evt.target.title === this.state.target)
-    if (evt.target.title === this.state.target) { won = true }
+    if (evt.target.title === this.state.target) {
+      won = true
+    }
     // update click count, history
     const updatedStats = {
       updatedClicks: clicks + 1,
@@ -196,9 +180,11 @@ export default class Game extends Component {
     const title = underTitleize(evt.target.title)
     const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${title}`)
     await this.setState({ html: wikiRes.data })
-    // update player's db instance
-    const { gameId, userId, userStats } = this.state
-    await axios.put(`${process.env.HOST}/api/globalGame/${gameId}/${userId}`, { ...userStats })
+    const { userId, userStats } = this.state
+    if (userId) {
+      // update player's db instance
+      await axios.put(`${process.env.HOST}/api/globalGame/${userId}`, { ...userStats })
+    }
   }
 
   startTimer() {
@@ -221,29 +207,27 @@ export default class Game extends Component {
     }
   }
 
+
   render() {
-    const { start, target, html, userStats, gameId, startTime, endTime, initTime, pregame, finished, time } = this.state
+    const { start, target, html, userStats, gameId, startTime, endTime, initTime, pregame, finished, inGame, time } = this.state
+    const { won } = userStats
     // pregame view
     return (
       <div id="container">
-        <Navbar
-          generateGlobalGame={this.generateGlobalGame}
-          joinGlobalGame={this.joinGlobalGame}
-          stopGlobalGame={this.stopGlobalGame}
-        />
-        {pregame ?
-          <Pregame
-            time={time}
-            start={start}
-            target={target}
-          />
-          : finished ?
-            <Finished
+        <Navbar />
+        {
+          finished || won
+            ? <Finished
               start={start}
               target={target}
               userStats={userStats}
             />
-            : <InGame
+            : null
+        }
+        {gameId === null
+          ? <NoGame generateGlobalGame={this.generateGlobalGame} />
+          : inGame
+            ? <InGame
               time={time}
               html={html}
               handleClick={this.handleClick}
@@ -254,6 +238,13 @@ export default class Game extends Component {
               startTime={startTime}
               endTime={endTime}
               initTime={initTime}
+            />
+            : <Pregame
+              time={time}
+              start={start}
+              target={target}
+              pregame={pregame}
+              joinGlobalGame={this.joinGlobalGame}
             />
         }
       </div>

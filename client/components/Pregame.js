@@ -1,7 +1,7 @@
 import React from 'react'
 
 const Pregame = (props) => {
-  const { time, start, target } = props
+  const { time, start, target, pregame, joinGlobalGame } = props
   return (
     <div className='pregame-container'>
       <div className='gameTimer-container' style={{ display: "flex", justifyContent: "center" }}>
@@ -13,6 +13,7 @@ const Pregame = (props) => {
       <div className='pregame-container-time-remaining' style={{ display: "flex", justifyContent: "center" }}>
         <h2>Target: {target}</h2>
       </div>
+      <button className='pregame-container-join-button' disabled={pregame} onClick={joinGlobalGame}>Join Game</button>
     </div>
   )
 }
