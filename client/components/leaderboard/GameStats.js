@@ -51,7 +51,6 @@ export default class GameStats extends Component {
             players.map(player => {
               const clicks = clickInfo[player].clicks
               const username = clickInfo[player].username
-              console.log('username in leaderboard', username)
               return (
                 <div key={player} id="player-single">
                   <p>{username} <span id="click-badge">{clicks}</span></p>
