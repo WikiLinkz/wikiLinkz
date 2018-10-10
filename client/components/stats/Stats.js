@@ -14,12 +14,12 @@ class Stats extends Component {
     }
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     let userId
     auth.onAuthStateChanged(async (user) => {
       if (user) {
         userId = user.uid
-        const res = await axios.get(`/api/users/${userId}/games`)
+        const res = await axios.get(`http://localhost:8080/api/users/${userId}/games`)
         const games = res.data
         const gameIds = Object.keys(games)
         const lastTenGames = gameIds.length < 10 ? gameIds : gameIds.slice(gameIds.length - 10)
