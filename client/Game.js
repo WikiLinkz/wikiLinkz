@@ -159,7 +159,7 @@ export default class Game extends Component {
       const wikiRes = await axios.get(`http://wikilinkz.herokuapp.com/api/wiki`)
       const { start, target } = wikiRes.data
       // create a new game with timer
-      const res = await axios.post(`http://wikilinkz.herokuapp.com/api/wiki/api/globalGame/`, { start, target })
+      const res = await axios.post(`http://wikilinkz.herokuapp.com/api/globalGame/`, { start, target })
       const { gameId, startTime, endTime, initTime } = res.data
       const timeNow = new Date()
       const timeToGameStart = ((Date.parse(startTime) - Date.parse(timeNow)) / 1000)
