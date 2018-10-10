@@ -14,7 +14,7 @@ class Stats extends Component {
     }
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     let userId
     auth.onAuthStateChanged(async (user) => {
       if (user) {
