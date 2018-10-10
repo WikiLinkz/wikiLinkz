@@ -3,12 +3,14 @@ require('firebase/database')
 require('firebase/auth')
 if (process.env.NODE_ENV !== 'production') require('./credentials')
 
+
+
 Firebase.initializeApp({
-  apiKey: process.env.API_KEY,
-  authDomain: process.env.AUTH_DOMAIN,
-  databaseURL: process.env.DATABASE_URL,
-  storageBucket: process.env.STORAGE_BUCKET,
-  messagingSenderId: process.env.MESSAGING_SENDER_ID
+  apiKey: 'AIzaSyDmPyGn3mJk9sUhTR9zzNR7NXlwXjdGKkE',
+  authDomain: 'wikilinkz-8f973.firebaseapp.com',
+  databaseURL: 'https://wikilinkz-8f973.firebaseio.com',
+  storageBucket: 'wikilinkz-8f973.appspot.com',
+  messagingSenderId: 'http://localhost:8080'
 })
 
 const db = Firebase.database()
