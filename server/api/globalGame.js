@@ -4,9 +4,9 @@ const axios = require('axios')
 module.exports = router
 
 // time IN SECONDS BEFORE THE 1000
-const preGameLength = 5 * 1000
+const preGameLength = 10 * 1000
 const gameLength = 120 * 1000
-const gameFinishedBuffer = .1 * 1000
+const gameFinishedBuffer = .5 * 1000
 
 //creates a new game instance in db, called by generate game
 router.post('/', async (req, res, next) => {
@@ -48,7 +48,6 @@ router.post('/', async (req, res, next) => {
           ...currentGame
         })
       })
-
     }, gameLength + preGameLength)
     setTimeout(async () => {
       await db.ref('GlobalGame').remove()

@@ -7,7 +7,7 @@ import InGame from './components/InGame'
 import { auth, db } from '../server/db/config'
 import { underTitleize, titleize, secondsToTime, initializeTimer } from '../server/api/utils'
 import './clean.css'
-import './game.css'
+// import './game.css'
 import NoGame from './components/NoGame'
 
 if (process.env.NODE_ENV !== 'production') require('../server/db/credentials')
@@ -42,7 +42,7 @@ export default class Game extends Component {
     this.stopGlobalGame = this.stopGlobalGame.bind(this)
     this.countDown = this.countDown.bind(this)
     this.startTimer = this.startTimer.bind(this)
-    this.timer = 5
+    this.timer = 0
   }
 
   async componentDidMount() {
@@ -55,26 +55,53 @@ export default class Game extends Component {
           this.setState({ pregame: true, inGame: false, gameId: null })
         }
         else {
-          const { gameId, start, target, startTime, endTime, initTime } = gameData
+          const { gameId, start, target, startTime, endTime, initTime, pregame } = gameData
           const initialTimer = initializeTimer(startTime, endTime)
-          const { pregame, seconds } = initialTimer
+          const { seconds } = initialTimer
           // check userId and set state
           let userId, finished
           // get current userId OR set userId to NULL if guest
-          await auth.onAuthStateChanged(user => {
+          await auth.onAuthStateChanged(async user => {
             userId = user ? user.uid : null;
             finished = gameData.finished ? finished = true : finished = false
-            if (this.state.finished) {
-              this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds, finished: true })
+            if (this.state.finished || gameData.finished) {
+              await this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds, finished: true, inGame: false })
             } else {
-              this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds, finished })
+              await this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds, finished })
             }
           })
+          this.startTimer()
         }
       })
-      if (this.state.seconds !== '') {
-      }
     } catch (err) { console.log('Error getting the current game', err) }
+  }
+
+  componentDidUpdate() {
+    if (this.state.seconds === 0) {
+      clearInterval(this.timer)
+      this.timer = 0
+    }
+  }
+
+  startTimer() {
+    if (this.timer === 0) {
+      this.timer = setInterval(this.countDown, 1000)
+    }
+  }
+
+  countDown() {
+    // Remove one second, set state so a re-render happens.
+    let seconds = this.state.seconds - 1;
+    this.setState({
+      time: secondsToTime(seconds),
+      seconds: seconds,
+    })
+
+    // Check if we're at zero.
+    if (seconds === 0) {
+      clearInterval(this.timer)
+      this.timer = 0
+    }
   }
 
   updateLocalStats(newStats) {
@@ -187,30 +214,11 @@ export default class Game extends Component {
     }
   }
 
-  startTimer() {
-    if (this.timer === 0 && this.state.seconds > 0) {
-      this.timer = setInterval(this.countDown, 1000)
-    }
-  }
-
-  countDown() {
-    // Remove one second, set state so a re-render happens.
-    let seconds = this.state.seconds - 1;
-    this.setState({
-      time: secondsToTime(seconds),
-      seconds: seconds,
-    })
-
-    // Check if we're at zero.
-    if (seconds === 0) {
-      clearInterval(this.timer)
-    }
-  }
-
-
   render() {
     const { start, target, html, userStats, gameId, startTime, endTime, initTime, pregame, finished, inGame, time } = this.state
     const { won } = userStats
+    console.log('TIMER', this.timer)
+    console.log('SECONDS', this.state.seconds)
     // pregame view
     return (
       <div id="container">
