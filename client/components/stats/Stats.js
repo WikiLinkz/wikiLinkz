@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { auth } from '../../../server/db/config'
 import Chart from './Chart'
@@ -34,7 +35,15 @@ class Stats extends Component {
   render() {
     return (
       <div className='container'>
-        <Chart games={this.state.games} />
+        <div className='back-button'>
+          <h1>Clicks and history of last 10 games</h1>
+          <Link to='/'>
+            Back to Game
+          </Link>
+        </div>
+        <div className='chart'>
+          <Chart games={this.state.games} />
+        </div>
       </div>
     )
   }

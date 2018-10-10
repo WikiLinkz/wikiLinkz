@@ -29,8 +29,8 @@ class Chart extends Component {
       <BarChart width={1000} height={500} data={games}
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }} >
         <XAxis dataKey="game" />
-        <Tooltip content={<CustomTooltip />} />
-        <Bar dataKey="clicks" barSize={40} fill={games.won ? "orange" : "blue"} label={{ fill: 'white' }} />
+        <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'blue', strokeWidth: 1 }} />
+        <Bar dataKey="clicks" barSize={60} fill='blue' label={{ fill: 'white' }} />
       </BarChart>
     )
   }
