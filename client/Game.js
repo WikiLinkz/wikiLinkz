@@ -181,7 +181,8 @@ export default class Game extends Component {
         await axios.put(`${process.env.HOST}/api/globalGame/${userId}`, {
           clicks: 0,
           won: false,
-          username: userStats.username
+          username: userStats.username,
+          history: []
         })
         // add current game's id to user's game history
         await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
