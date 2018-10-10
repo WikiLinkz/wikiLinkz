@@ -8,11 +8,27 @@ router.put('/:userId/:gameId', async (req, res, next) => {
   try {
     const { gameId, userId } = req.params
     const newGame = {}
-    newGame[gameId] = true
+    newGame[gameId] = gameId
     await db.ref(`Users/${userId}/gameHistory`).update({
       ...newGame
     })
     res.sendStatus(200)
+  } catch (err) {
+    next(err)
+  }
+})
+
+// finds a user's game history
+router.get('/:userId/games', async (req, res, next) => {
+  try {
+    const { userId } = req.params
+    await db.ref(`Users/${userId}/gameHistory`).once('value', async (snapshot) => {
+      const games = snapshot.val()
+      console.log('====================================')
+      console.log(games)
+      console.log('====================================')
+      res.send(games)
+    })
   } catch (err) {
     next(err)
   }

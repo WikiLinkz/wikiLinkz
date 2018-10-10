@@ -1,0 +1,30 @@
+.container {
+  padding: 20px;
+  text-align: center;
+  height: 100vh;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  font-family: sans-serif;
+  flex-direction: column;
+}
+
+.custom-tooltip {
+  border-radius: 5px;
+  padding: 10px;
+  color: rgb(49, 48, 48);
+  background-color: rgba(196, 225, 250, 0.74)
+}
+
+.custom-tooltip li {
+  list-style: none;
+  font-family: sans-serif;
+}
+
+.back-button a {
+  text-decoration: none;
+  background-color: rgb(201, 73, 73);
+  padding: 10px;
+  border-radius: 5px;
+  color: white;
+}
