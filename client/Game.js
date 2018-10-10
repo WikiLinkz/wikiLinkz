@@ -12,8 +12,6 @@ import NoGame from './components/NoGame'
 
 if (process.env.NODE_ENV !== 'production') require('../server/db/credentials')
 
-process.env.HOST = 'http://wikilinkz.herokuapp.com'
-
 export default class Game extends Component {
   constructor() {
     super()
@@ -158,7 +156,7 @@ export default class Game extends Component {
   async generateGlobalGame() {
     try {
       // generate new start and target articles from wiki api
-      const wikiRes = await axios.get(`${process.env.HOST}/api/wiki`)
+      const wikiRes = await axios.get(`http://wikilinkz.herokuapp.com/api/wiki`)
       const { start, target } = wikiRes.data
       // create a new game with timer
       const res = await axios.post(`${process.env.HOST}/api/globalGame/`, { start, target })
@@ -180,18 +178,18 @@ export default class Game extends Component {
       const { userId, gameId, userStats, start } = this.state
       if (userId) {
         // create player instance on the current game
-        await axios.put(`${process.env.HOST}/api/globalGame/${userId}`, {
+        await axios.put(`http://wikilinkz.herokuapp.com/api/globalGame/${userId}`, {
           clicks: 0,
           won: false,
           username: userStats.username,
           history: []
         })
         // add current game's id to user's game history
-        await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
+        await axios.put(`http://wikilinkz.herokuapp.com/api/users/${userId}/${gameId}`)
       }
       // get start html
       const underscoredStart = underTitleize(start)
-      const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${underscoredStart}`)
+      const wikiRes = await axios.get(`http://wikilinkz.herokuapp.com/api/wiki/${underscoredStart}`)
       const html = wikiRes.data
       this.setState({
         html,
@@ -210,7 +208,7 @@ export default class Game extends Component {
   async stopGlobalGame() {
     try {
       clearInterval(this.timer)
-      await axios.put(`${process.env.HOST}/api/globalGame/stopGlobalGame`)
+      await axios.put(`http://wikilinkz.herokuapp.com/api/globalGame/stopGlobalGame`)
       await this.setState({
         finished: true,
         pregame: false,
@@ -240,12 +238,12 @@ export default class Game extends Component {
     this.updateLocalStats(updatedStats)
     // fetch new article
     const title = underTitleize(evt.target.title)
-    const wikiRes = await axios.get(`${process.env.HOST}/api/wiki/${title}`)
+    const wikiRes = await axios.get(`http://wikilinkz.herokuapp.com/api/wiki/${title}`)
     await this.setState({ html: wikiRes.data })
     const { userId, userStats } = this.state
     if (userId) {
       // update player's db instance
-      await axios.put(`${process.env.HOST}/api/globalGame/${userId}`, { ...userStats })
+      await axios.put(`http://wikilinkz.herokuapp.com/api/globalGame/${userId}`, { ...userStats })
     }
   }
 
