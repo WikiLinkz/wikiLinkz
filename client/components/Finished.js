@@ -25,16 +25,18 @@ class Finished extends PureComponent {
 
     return (
       <div className='gameover-container' style={{ display: "flex", flexDirection: "column", alignItems: 'center' }}>
-        <h2>Game Finished!</h2>
+        <h2>Time's Up!</h2>
         {
           won
-            ? <h2>YOU WIKI WIKI WON DAWG!</h2>
-            : <h2>YOU WIKI WIKI LOST DAWG!</h2>
+            ? <h2>YOU WIKI WIKI WON, DAWG!</h2>
+            : <h2>YOU WIKI WIKI LOST, DAWG!</h2>
         }
-        <p>Start: {start}</p>
-        <p>Target: {target}</p>
-        <p>History: {history.join(' => ')}</p>
-        <p>Clicks: {clicks} </p>
+        <div id='game-finished-container'>
+          <p>Start: {start}</p>
+          <p>Target: {target}</p>
+          <p>History: {history.join(' => ')}</p>
+          <p>Clicks: {clicks} </p>
+        </div>
       </div>
     )
   }

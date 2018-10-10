@@ -4,12 +4,12 @@ import LeaderboardContainer from './leaderboard/LeaderboardContainer'
 const InGame = (props) => {
   const { time, html, handleClick, userStats, start, target, startTime, endTime, initTime } = props
   return (
-    <div>
+    <div className='ingame-container'>
       <div
         className='gameTimer-container'
         style={{ display: "flex", justifyContent: "center" }}
       >
-        <h1>Global Game Ends in {time.m}:{time.s}</h1>
+        <h1>Global Game Ends in <b>{time.m}:{time.s}</b></h1>
       </div>
       <div
         className='game-wikipedia-info-container'

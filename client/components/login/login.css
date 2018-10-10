@@ -9,3 +9,14 @@
 #user-info {
   display: flex;
 }
+
+#user-info h3 {
+  color: #ffffff;
+  font-weight: 300;
+}
+
+#user-info a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 18px;
+}

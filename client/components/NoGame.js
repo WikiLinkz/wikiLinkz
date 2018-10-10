@@ -5,7 +5,7 @@ const NoGame = (props) => {
   return (
     <div className='nogame-container'>
       <h2>No Game Running!</h2>
-      <button onClick={generateGlobalGame}>Start A Game</button>
+      <button id='start-game-button' onClick={generateGlobalGame}>Start A Game</button>
     </div>
   )
 }
