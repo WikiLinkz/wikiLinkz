@@ -243,7 +243,7 @@ export default class Game extends Component {
   }
 
   render() {
-    const { start, target, html, userStats, gameId, startTime, endTime, initTime, pregame, finished, inGame, time } = this.state
+    const { start, target, html, gameId, userStats, startTime, endTime, initTime, pregame, finished, inGame, time } = this.state
     const { won } = userStats
     // pregame view
     return (
@@ -265,7 +265,6 @@ export default class Game extends Component {
               time={time}
               html={html}
               handleClick={this.handleClick}
-              gameId={gameId}
               userStats={userStats}
               start={start}
               target={target}

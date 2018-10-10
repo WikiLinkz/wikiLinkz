@@ -8,17 +8,13 @@ import './leaderboard.css'
 
 export default class LeaderboardContainer extends Component {
   render() {
-    const { gameId, userStats, start, target, startTime, endTime, initTime } = this.props
+    const { userStats, start, target, startTime, endTime, initTime } = this.props
     return (
       <div id='game-info-container-wrapper'>
         <div id='game-info-container'>
           <div id='game-info-container-fixed'>
             <UserStats userStats={userStats} start={start} target={target} startTime={startTime} endTime={endTime} initTime={initTime} />
-            {
-              gameId
-                ? <GameStats gameId={gameId} />
-                : null
-            }
+            <GameStats />
           </div>
         </div>
       </div>

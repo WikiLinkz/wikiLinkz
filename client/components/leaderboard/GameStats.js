@@ -23,23 +23,23 @@ export default class GameStats extends Component {
     })
   }
 
-  async componentDidUpdate(prevProps) {
-    const oldGame = prevProps.gameId
-    const newGame = this.props.gameId
-    if (oldGame !== newGame) {
-      const { gameId } = this.props
-      if (gameId) {
-        const gameRef = await db.ref('GlobalGame')
-        gameRef.on('value', snapshot => {
-          const clickInfo = snapshot.val().clickInfo
-          if (clickInfo !== undefined && clickInfo !== null) {
-            const players = Object.keys(clickInfo)
-            this.setState({ clickInfo, players })
-          }
-        })
-      }
-    }
-  }
+  // async componentDidUpdate(prevProps) {
+  //   const oldGame = prevProps.gameId
+  //   const newGame = this.props.gameId
+  //   if (oldGame !== newGame) {
+  //     const { gameId } = this.props
+  //     if (gameId) {
+  //       const gameRef = await db.ref('GlobalGame')
+  //       gameRef.on('value', snapshot => {
+  //         const clickInfo = snapshot.val().clickInfo
+  //         if (clickInfo !== undefined && clickInfo !== null) {
+  //           const players = Object.keys(clickInfo)
+  //           this.setState({ clickInfo, players })
+  //         }
+  //       })
+  //     }
+  //   }
+  // }
 
   render() {
     const { players, clickInfo } = this.state
