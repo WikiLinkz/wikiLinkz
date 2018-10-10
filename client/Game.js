@@ -217,8 +217,6 @@ export default class Game extends Component {
   render() {
     const { start, target, html, userStats, gameId, startTime, endTime, initTime, pregame, finished, inGame, time } = this.state
     const { won } = userStats
-    console.log('TIMER', this.timer)
-    console.log('SECONDS', this.state.seconds)
     // pregame view
     return (
       <div id="container">
