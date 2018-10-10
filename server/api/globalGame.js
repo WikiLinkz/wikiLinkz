@@ -5,32 +5,8 @@ module.exports = router
 
 // time IN SECONDS BEFORE THE 1000
 const preGameLength = 5 * 1000
-const gameLength = 10 * 1000
-const gameFinishedBuffer = .5 * 1000
-
-
-
-// finds Global Game, returns start, target, gameId, called from componentDidMount
-// router.get('/', async (req, res, next) => {
-//   try {
-//     await db.ref('GlobalGame').once('value', snapshot => {
-//       if (snapshot.val() === null) {
-//         res.send({ error: 'No game running!' })
-//       }
-//       snapshot.forEach(currentGame => {
-//         const gameId = currentGame.key
-//         const gameRef = db.ref(`GlobalGame/${gameId}`)
-//         gameRef.once('value', async (snapshot) => {
-//           const data = snapshot.val()
-//           const { gameId, start, target, startTime, endTime, initTime } = data
-//           res.send({ gameId, start, target, startTime, endTime, initTime })
-//         })
-//       })
-//     })
-//   } catch (error) {
-//     next(error)
-//   }
-// })
+const gameLength = 120 * 1000
+const gameFinishedBuffer = .1 * 1000
 
 //creates a new game instance in db, called by generate game
 router.post('/', async (req, res, next) => {
@@ -82,25 +58,6 @@ router.post('/', async (req, res, next) => {
     next(err)
   }
 })
-
-// no longer necessary
-// router.put('/stopGlobalGame', async (req, res, next) => {
-//   try {
-//     await db.ref('GlobalGame').once('value', async snapshot => {
-//       snapshot.forEach(async currentGame => {
-//         const gameId = currentGame.key
-//         const gameData = currentGame.val()
-//         await db.ref('GlobalGameArchive/' + gameId).set({
-//           gameData
-//         })
-//       })
-//     })
-//     await db.ref('GlobalGame').remove()
-//     res.sendStatus(204)
-//   } catch (error) {
-//     next(error)
-//   }
-// })
 
 // fetches current game start and target, called by join game
 router.get('/:gameId', async (req, res, next) => {

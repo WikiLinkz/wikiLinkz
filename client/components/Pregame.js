@@ -2,7 +2,6 @@ import React from 'react'
 
 const Pregame = (props) => {
   const { time, start, target, pregame, joinGlobalGame } = props
-  console.log(pregame)
   return (
     <div className='pregame-container'>
       <div className='gameTimer-container' style={{ display: "flex", justifyContent: "center" }}>
