@@ -24,7 +24,8 @@ export default class Game extends Component {
       userStats: {
         history: [],
         clicks: 0,
-        won: false
+        won: false,
+        username: '',
       },
       startTime: '',
       endTime: '',
@@ -61,13 +62,36 @@ export default class Game extends Component {
           // check userId and set state
           let userId, finished
           // get current userId OR set userId to NULL if guest
-          await auth.onAuthStateChanged(async user => {
+          auth.onAuthStateChanged(async user => {
             userId = user ? user.uid : null;
             finished = gameData.finished ? finished = true : finished = false
-            if (this.state.finished || gameData.finished) {
-              await this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds, finished: true, inGame: false })
+            //get username
+            var username
+            if (userId) {
+              const userRef = db.ref(`Users/${userId}`)
+              userRef.once('value', async snapshot => {
+                const user = snapshot.val();
+                username = user.username
+                if (this.state.finished || gameData.finished) {
+                  await this.setState({
+                    gameId, start, target, userId, startTime, endTime, initTime,
+                    pregame, seconds, finished: true, inGame: false,
+                    userStats: { ...this.state.userStats, username }
+                  })
+                } else {
+                  await this.setState({
+                    gameId, start, target, userId,
+                    startTime, endTime, initTime, pregame, seconds, finished,
+                    userStats: { ...this.state.userStats, username }
+                  })
+                }
+              })
             } else {
-              await this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds, finished })
+              if (this.state.finished || gameData.finished) {
+                await this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds, finished: true, inGame: false })
+              } else {
+                await this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds, finished })
+              }
             }
           })
           this.startTimer()
@@ -111,6 +135,7 @@ export default class Game extends Component {
           clicks: newStats.updatedClicks,
           history: newStats.updatedHistory,
           won: newStats.updatedWon,
+          username: newStats.updatedUsername
         },
         finished: true,
         inGame: false
@@ -120,7 +145,8 @@ export default class Game extends Component {
         userStats: {
           clicks: newStats.updatedClicks,
           history: newStats.updatedHistory,
-          won: newStats.updatedWon
+          won: newStats.updatedWon,
+          username: newStats.updatedUsername
         }
       })
     }
@@ -167,7 +193,8 @@ export default class Game extends Component {
         userStats: {
           history: [start],
           clicks: 0,
-          won: false
+          won: false,
+          username: this.state.userStats.username
         }
       })
     } catch (error) { console.log('Error JOINING the global game', error) }
@@ -191,7 +218,7 @@ export default class Game extends Component {
   async handleClick(evt) {
     evt.preventDefault()
     if (evt.target.tagName !== 'A') return
-    let { clicks, history, won } = this.state.userStats
+    let { clicks, history, won, username } = this.state.userStats
     // check if player won
     if (evt.target.title === this.state.target) {
       won = true
@@ -200,7 +227,8 @@ export default class Game extends Component {
     const updatedStats = {
       updatedClicks: clicks + 1,
       updatedHistory: [...history, evt.target.title],
-      updatedWon: won
+      updatedWon: won,
+      updatedUsername: username
     }
     this.updateLocalStats(updatedStats)
     // fetch new article
