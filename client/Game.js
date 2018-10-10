@@ -7,7 +7,7 @@ import InGame from './components/InGame'
 import { auth, db } from '../server/db/config'
 import { underTitleize, secondsToTime, initializeTimer } from '../server/api/utils'
 import './clean.css'
-import './game.css'
+// import './game.css'
 import NoGame from './components/NoGame'
 
 if (process.env.NODE_ENV !== 'production') require('../server/db/credentials')
@@ -24,7 +24,8 @@ export default class Game extends Component {
       userStats: {
         history: [],
         clicks: 0,
-        won: false
+        won: false,
+        username: '',
       },
       startTime: '',
       endTime: '',
@@ -42,7 +43,7 @@ export default class Game extends Component {
     this.stopGlobalGame = this.stopGlobalGame.bind(this)
     this.countDown = this.countDown.bind(this)
     this.startTimer = this.startTimer.bind(this)
-    this.timer = 5
+    this.timer = 0
   }
 
   async componentDidMount() {
@@ -55,26 +56,76 @@ export default class Game extends Component {
           this.setState({ pregame: true, inGame: false, gameId: null })
         }
         else {
-          const { gameId, start, target, startTime, endTime, initTime } = gameData
+          const { gameId, start, target, startTime, endTime, initTime, pregame } = gameData
           const initialTimer = initializeTimer(startTime, endTime)
-          const { pregame, seconds } = initialTimer
+          const { seconds } = initialTimer
           // check userId and set state
           let userId, finished
           // get current userId OR set userId to NULL if guest
-          await auth.onAuthStateChanged(user => {
+          auth.onAuthStateChanged(async user => {
             userId = user ? user.uid : null;
             finished = gameData.finished ? finished = true : finished = false
-            if (this.state.finished) {
-              this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds, finished: true })
+            //get username
+            var username
+            if (userId) {
+              const userRef = db.ref(`Users/${userId}`)
+              userRef.once('value', async snapshot => {
+                const user = snapshot.val();
+                username = user.username
+                if (this.state.finished || gameData.finished) {
+                  await this.setState({
+                    gameId, start, target, userId, startTime, endTime, initTime,
+                    pregame, seconds, finished: true, inGame: false,
+                    userStats: { ...this.state.userStats, username }
+                  })
+                } else {
+                  await this.setState({
+                    gameId, start, target, userId,
+                    startTime, endTime, initTime, pregame, seconds, finished,
+                    userStats: { ...this.state.userStats, username }
+                  })
+                }
+              })
             } else {
-              this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds, finished })
+              if (this.state.finished || gameData.finished) {
+                await this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds, finished: true, inGame: false })
+              } else {
+                await this.setState({ gameId, start, target, userId, startTime, endTime, initTime, pregame, seconds, finished })
+              }
             }
           })
+          this.startTimer()
         }
       })
-      if (this.state.seconds !== '') {
-      }
     } catch (err) { console.log('Error getting the current game', err) }
+  }
+
+  componentDidUpdate() {
+    if (this.state.seconds === 0) {
+      clearInterval(this.timer)
+      this.timer = 0
+    }
+  }
+
+  startTimer() {
+    if (this.timer === 0) {
+      this.timer = setInterval(this.countDown, 1000)
+    }
+  }
+
+  countDown() {
+    // Remove one second, set state so a re-render happens.
+    let seconds = this.state.seconds - 1;
+    this.setState({
+      time: secondsToTime(seconds),
+      seconds: seconds,
+    })
+
+    // Check if we're at zero.
+    if (seconds === 0) {
+      clearInterval(this.timer)
+      this.timer = 0
+    }
   }
 
   updateLocalStats(newStats) {
@@ -84,6 +135,7 @@ export default class Game extends Component {
           clicks: newStats.updatedClicks,
           history: newStats.updatedHistory,
           won: newStats.updatedWon,
+          username: newStats.updatedUsername
         },
         finished: true,
         inGame: false
@@ -93,7 +145,8 @@ export default class Game extends Component {
         userStats: {
           clicks: newStats.updatedClicks,
           history: newStats.updatedHistory,
-          won: newStats.updatedWon
+          won: newStats.updatedWon,
+          username: newStats.updatedUsername
         }
       })
     }
@@ -125,7 +178,12 @@ export default class Game extends Component {
       const { userId, gameId, userStats, start } = this.state
       if (userId) {
         // create player instance on the current game
-        await axios.put(`${process.env.HOST}/api/globalGame/${userId}`, { ...userStats })
+        await axios.put(`${process.env.HOST}/api/globalGame/${userId}`, {
+          clicks: 0,
+          won: false,
+          username: userStats.username,
+          history: []
+        })
         // add current game's id to user's game history
         await axios.put(`${process.env.HOST}/api/users/${userId}/${gameId}`)
       }
@@ -140,7 +198,8 @@ export default class Game extends Component {
         userStats: {
           history: [start],
           clicks: 0,
-          won: false
+          won: false,
+          username: this.state.userStats.username
         }
       })
     } catch (error) { console.log('Error JOINING the global game', error) }
@@ -164,7 +223,7 @@ export default class Game extends Component {
   async handleClick(evt) {
     evt.preventDefault()
     if (evt.target.tagName !== 'A') return
-    let { clicks, history, won } = this.state.userStats
+    let { clicks, history, won, username } = this.state.userStats
     // check if player won
     if (evt.target.title === this.state.target) {
       won = true
@@ -173,7 +232,8 @@ export default class Game extends Component {
     const updatedStats = {
       updatedClicks: clicks + 1,
       updatedHistory: [...history, evt.target.title],
-      updatedWon: won
+      updatedWon: won,
+      updatedUsername: username
     }
     this.updateLocalStats(updatedStats)
     // fetch new article
@@ -187,29 +247,8 @@ export default class Game extends Component {
     }
   }
 
-  startTimer() {
-    if (this.timer === 0 && this.state.seconds > 0) {
-      this.timer = setInterval(this.countDown, 1000)
-    }
-  }
-
-  countDown() {
-    // Remove one second, set state so a re-render happens.
-    let seconds = this.state.seconds - 1;
-    this.setState({
-      time: secondsToTime(seconds),
-      seconds: seconds,
-    })
-
-    // Check if we're at zero.
-    if (seconds === 0) {
-      clearInterval(this.timer)
-    }
-  }
-
-
   render() {
-    const { start, target, html, userStats, gameId, startTime, endTime, initTime, pregame, finished, inGame, time } = this.state
+    const { start, target, html, gameId, userStats, startTime, endTime, initTime, pregame, finished, inGame, time } = this.state
     const { won } = userStats
     // pregame view
     return (
@@ -231,7 +270,6 @@ export default class Game extends Component {
               time={time}
               html={html}
               handleClick={this.handleClick}
-              gameId={gameId}
               userStats={userStats}
               start={start}
               target={target}
