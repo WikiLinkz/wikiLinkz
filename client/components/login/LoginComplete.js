@@ -11,8 +11,8 @@ export default class LoginComplete extends Component {
           <Link to='/stats'>
             <img src='/stats.png' width='40px' />
           </Link>
+          <a href='#' onClick={logout}>Logout</a>
         </div>
-        <button type="button" onClick={logout}>Logout</button>
       </div>
     )
   }
