@@ -38,7 +38,6 @@ class Finished extends PureComponent {
             ? <h2>Way to go!</h2>
             : <h2>Time's up</h2>
         }
-        <h2>Time's Up!</h2>
         {
           won
             ? <h2>YOU REACHED THE TARGET!</h2>
