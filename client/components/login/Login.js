@@ -67,7 +67,7 @@ export default class Login extends Component {
         {
           newUser
             ? <UserName user={user} logout={this.logout} />
-            : <button type="button" onClick={this.login}>Login With Google</button>
+            : <button type="button" onClick={this.login} id="login-button"><img id="google-logo" src="/images/googleLogo.png" alt="google" />Login With Google</button>
         }
       </div >
     )
