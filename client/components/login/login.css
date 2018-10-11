@@ -11,12 +11,12 @@
 }
 
 #user-info h3 {
-  color: #ffffff;
-  font-weight: 300;
+  color: #fff;
+  font-weight: 500;
 }
 
 #user-info a {
-  color: #ffffff;
+  color: #fff;
   text-decoration: none;
   font-size: 18px;
 }
