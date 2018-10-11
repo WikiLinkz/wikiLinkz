@@ -184,9 +184,9 @@ export default class Game extends Component {
       }
       if (userId) {
         // create player instance on the current game
-        await axios.put(`http://localhost:8080/api/globalGame/${userId}`, userInfo)
+        await axios.put(`http://wikilinkz.herokuapp.com/api/globalGame/${userId}`, userInfo)
         // add current game's id to user's game history
-        await axios.put(`http://localhost:8080/api/users/${userId}/${gameId}`, { ...userInfo, start, target, history: '' })
+        await axios.put(`http://wikilinkz.herokuapp.com/api/users/${userId}/${gameId}`, { ...userInfo, start, target, history: '' })
       }
       // get start html
       const underscoredStart = underTitleize(start)
