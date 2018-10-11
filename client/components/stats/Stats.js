@@ -19,7 +19,7 @@ class Stats extends Component {
     auth.onAuthStateChanged(async (user) => {
       if (user) {
         userId = user.uid
-        const res = await axios.get(`http://wikilinkz.herokuapp.com/api/users/${userId}/games`)
+        const res = await axios.get(`https://wikilinks.app/api/users/${userId}/games`)
         const games = res.data
         const gameIds = Object.keys(games)
         const lastTenGames = gameIds.length < 10 ? gameIds : gameIds.slice(gameIds.length - 10)
