@@ -1,16 +1,13 @@
 const router = require('express').Router()
 const { db } = require('../db/config')
-const axios = require('axios')
 module.exports = router
 
 // creates a new player in the current game with player game info and adds the game to user's history, called from join a game
 router.put('/:userId/:gameId', async (req, res, next) => {
   try {
     const { gameId, userId } = req.params
-    const newGame = {}
-    newGame[gameId] = gameId
     await db.ref(`Users/${userId}/gameHistory`).update({
-      ...newGame
+      [gameId]: req.body
     })
     res.sendStatus(200)
   } catch (err) {
@@ -24,9 +21,6 @@ router.get('/:userId/games', async (req, res, next) => {
     const { userId } = req.params
     await db.ref(`Users/${userId}/gameHistory`).once('value', async (snapshot) => {
       const games = snapshot.val()
-      console.log('====================================')
-      console.log(games)
-      console.log('====================================')
       res.send(games)
     })
   } catch (err) {
