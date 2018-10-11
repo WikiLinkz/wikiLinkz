@@ -72,4 +72,11 @@ const initializeTimer = (startTime, endTime) => {
   }
 }
 
-module.exports = { getDate, getRandomNums, titleize, underTitleize, secondsToTime, initializeTimer }
+const getPoints = (clicks) => {
+  let points = 1000
+  if (clicks >= 3 && clicks <= 10) points -= ((clicks - 2) * 100)
+  if (clicks >= 11) points = 100
+  return points
+}
+
+module.exports = { getDate, getRandomNums, titleize, underTitleize, secondsToTime, initializeTimer, getPoints }

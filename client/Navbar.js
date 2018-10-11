@@ -4,7 +4,7 @@ import Login from './components/login/Login'
 const Navbar = () => {
   return (
     <header id="game-container" style={styles.navbar}>
-      <h1 className="game-title" style={{ marginTop: 0, color: 'white' }}>WikiLinkz</h1>
+      <h1 className="game-title" style={{ marginTop: 0, color: 'white' }}>WikiLinks</h1>
       <Login />
     </header>
   )

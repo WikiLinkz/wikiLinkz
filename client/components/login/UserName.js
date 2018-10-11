@@ -67,20 +67,8 @@ export default class UserName extends Component {
           complete
             ? <LoginComplete userName={userName} logout={this.props.logout} />
             : <form type="submit" onSubmit={this.handleSubmit}>
-              Pick your username:<br />
-              <input
-                type="text"
-                name="username"
-                placeholder="username"
-                onChange={this.handleChange}
-
-              />
-              <button
-                type="submit"
-                disabled={!enabled}>
-                Submit
-            </button>
-              <div id="req-check">
+              <h3 id="pick-username">Pick your username</h3>
+              <div id="input">
                 {
                   showCheck
                     ? <div id="check">
@@ -92,12 +80,20 @@ export default class UserName extends Component {
                     </div>
                     : null
                 }
-              </div>
-              <div id="req">
-                <ul>
-                  <li>between 5 and 10 characters</li>
-                  <li>letters and numbers only</li>
-                </ul>
+                <div>
+                  <input
+                    id="username-input"
+                    type="text"
+                    name="username"
+                    placeholder="username"
+                    onChange={this.handleChange}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!enabled}>
+                    Submit
+              </button>
+                </div>
               </div>
             </form>
         }

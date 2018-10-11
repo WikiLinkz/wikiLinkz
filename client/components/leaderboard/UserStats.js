@@ -2,8 +2,7 @@ import React, { Component } from 'react'
 
 export default class UserStats extends Component {
   render() {
-    const { userStats, start, target, startTime, endTime, initTime } = this.props
-    const history = userStats.history.join(' -> ')
+    const { start, target } = this.props
     return (
       <div id="leaderboard-user-stats">
         <h3>Game Info</h3>
