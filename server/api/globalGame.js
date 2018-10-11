@@ -1,5 +1,6 @@
 const router = require('express').Router()
 const { db } = require('../db/config')
+const { getPoints } = require('./utils')
 module.exports = router
 
 // time IN SECONDS BEFORE THE 1000
@@ -79,33 +80,14 @@ router.post('/', async (req, res, next) => {
   }
 })
 
-// // fetches current game start and target, called by join game
-// router.get('/:gameId', async (req, res, next) => {
-//   try {
-//     const gameId = req.params.gameId
-//     const gameRef = await db.ref(`GlobalGame`)
-//     gameRef.once('value', (snapshot) => {
-//       const data = snapshot.val()
-//       const { start, target, clickInfo, startTime, endTime, initTime } = data
-//       res.send({
-//         start,
-//         target,
-//         clickInfo,
-//         startTime,
-//         endTime,
-//         initTime
-//       })
-//     })
-//   } catch (err) {
-//     next(err)
-//   }
-// })
-
 // creates a new player in the current game with player game info and adds the game to user's history, called from join a game
 router.put('/:userId', async (req, res, next) => {
   try {
     const { userId } = req.params
     const { clicks, won, username, history } = req.body
+
+    // get points
+    let points = getPoints(clicks)
 
     const historyStr = history.join(',')
     // put username here!
@@ -113,6 +95,7 @@ router.put('/:userId', async (req, res, next) => {
       clicks,
       won,
       username,
+      points,
       history: historyStr
     })
     res.sendStatus(201)
