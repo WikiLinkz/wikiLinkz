@@ -175,17 +175,18 @@ export default class Game extends Component {
 
   async joinGlobalGame() {
     try {
-      const { userId, gameId, userStats, start } = this.state
+      const { userId, gameId, userStats, start, target } = this.state
+      const userInfo = {
+        clicks: 0,
+        won: false,
+        username: userStats.username,
+        history: []
+      }
       if (userId) {
         // create player instance on the current game
-        await axios.put(`http://localhost:8080/api/globalGame/${userId}`, {
-          clicks: 0,
-          won: false,
-          username: userStats.username,
-          history: []
-        })
+        await axios.put(`http://localhost:8080/api/globalGame/${userId}`, userInfo)
         // add current game's id to user's game history
-        await axios.put(`http://localhost:8080/api/users/${userId}/${gameId}`)
+        await axios.put(`http://localhost:8080/api/users/${userId}/${gameId}`, { ...userInfo, start, target, history: '' })
       }
       // get start html
       const underscoredStart = underTitleize(start)
