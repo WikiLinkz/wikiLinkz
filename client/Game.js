@@ -156,10 +156,10 @@ export default class Game extends Component {
   async generateGlobalGame() {
     try {
       // generate new start and target articles from wiki api
-      const wikiRes = await axios.get(`https://wikilinks.app/api/wiki`)
+      const wikiRes = await axios.get(`https://www.wikilinks.app/api/wiki`)
       const { start, target } = wikiRes.data
       // create a new game with timer
-      const res = await axios.post(`https://wikilinks.app/api/globalGame/`, { start, target })
+      const res = await axios.post(`https://www.wikilinks.app/api/globalGame/`, { start, target })
       const { gameId, startTime, endTime, initTime } = res.data
       const timeNow = new Date()
       const timeToGameStart = ((Date.parse(startTime) - Date.parse(timeNow)) / 1000)
@@ -184,13 +184,13 @@ export default class Game extends Component {
       }
       if (userId) {
         // create player instance on the current game
-        await axios.put(`https://wikilinks.app/api/globalGame/${userId}`, userInfo)
+        await axios.put(`https://www.wikilinks.app/api/globalGame/${userId}`, userInfo)
         // add current game's id to user's game history
-        await axios.put(`https://wikilinks.app/api/users/${userId}/${gameId}`, { ...userInfo, start, target, history: '' })
+        await axios.put(`https://www.wikilinks.app/api/users/${userId}/${gameId}`, { ...userInfo, start, target, history: '' })
       }
       // get start html
       const underscoredStart = underTitleize(start)
-      const wikiRes = await axios.get(`https://wikilinks.app/api/wiki/${underscoredStart}`)
+      const wikiRes = await axios.get(`https://www.wikilinks.app/api/wiki/${underscoredStart}`)
       const html = wikiRes.data
       this.setState({
         html,
@@ -209,7 +209,7 @@ export default class Game extends Component {
   async stopGlobalGame() {
     try {
       clearInterval(this.timer)
-      await axios.put(`https://wikilinks.app/api/globalGame/stopGlobalGame`)
+      await axios.put(`https://www.wikilinks.app/api/globalGame/stopGlobalGame`)
       await this.setState({
         finished: true,
         pregame: false,
@@ -239,12 +239,12 @@ export default class Game extends Component {
     this.updateLocalStats(updatedStats)
     // fetch new article
     const title = underTitleize(evt.target.title)
-    const wikiRes = await axios.get(`https://wikilinks.app/api/wiki/${title}`)
+    const wikiRes = await axios.get(`https://www.wikilinks.app/api/wiki/${title}`)
     await this.setState({ html: wikiRes.data })
     const { userId, userStats } = this.state
     if (userId) {
       // update player's db instance
-      await axios.put(`https://wikilinks.app/api/globalGame/${userId}`, { ...userStats })
+      await axios.put(`https://www.wikilinks.app/api/globalGame/${userId}`, { ...userStats })
     }
   }
 
