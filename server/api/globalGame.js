@@ -22,8 +22,8 @@ router.post('/', async (req, res, next) => {
     const gameId = await db.ref('GlobalGame').push().key
     await db.ref('GlobalGame/').set({
       gameId: gameId,
-      start: start,
-      target: target,
+      start: 'Elon_Musk',
+      target: 'Beanie_Babies',
       clickInfo: true,
       startTime: startTime,
       endTime: endTime,
