@@ -26,7 +26,6 @@ class Stats extends Component {
         const gamesArr = lastTenGames.map(key => {
           return { ...games[key], game: `${games[key]['start']} - ${games[key]['target']}` }
         })
-        console.log('gamesArr: ', gamesArr)
         this.setState({ games: gamesArr })
       }
     })

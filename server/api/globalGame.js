@@ -11,7 +11,6 @@ const gameFinishedBuffer = 5 * 1000
 //creates a new game instance in db, called by generate game
 router.post('/', async (req, res, next) => {
   try {
-    console.log('begin post')
     //Assign start/end time
     const timeNow = new Date()
     const initTime = timeNow.toString()
