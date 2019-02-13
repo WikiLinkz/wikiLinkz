@@ -69,8 +69,9 @@ export default class Game extends Component {
             endTime,
             initTime,
             pregame,
+            postgame,
           } = gameData
-          const initialTimer = initializeTimer(startTime, endTime)
+          const initialTimer = await initializeTimer(startTime, endTime)
           const { seconds } = initialTimer
           // check userId and set state
           let userId, finished
@@ -102,6 +103,7 @@ export default class Game extends Component {
                     seconds,
                     finished: true,
                     inGame: false,
+                    postgame,
                     userStats: { ...this.state.userStats, username },
                   })
                 } else {
@@ -120,6 +122,7 @@ export default class Game extends Component {
                     pregame,
                     seconds,
                     finished,
+                    postgame,
                     userStats: { ...this.state.userStats, username },
                   })
                 }
@@ -129,13 +132,18 @@ export default class Game extends Component {
                 await this.setState({
                   gameId,
                   start,
+                  startSummary,
                   target,
+                  targetSummary,
+                  startImg,
+                  targetImg,
                   userId,
                   startTime,
                   endTime,
                   initTime,
                   pregame,
                   seconds,
+                  postgame,
                   finished: true,
                   inGame: false,
                 })
@@ -143,7 +151,11 @@ export default class Game extends Component {
                 await this.setState({
                   gameId,
                   start,
+                  startSummary,
                   target,
+                  targetSummary,
+                  startImg,
+                  targetImg,
                   userId,
                   startTime,
                   endTime,
@@ -151,6 +163,7 @@ export default class Game extends Component {
                   pregame,
                   seconds,
                   finished,
+                  postgame,
                 })
               }
             }
@@ -164,7 +177,7 @@ export default class Game extends Component {
   }
 
   componentDidUpdate() {
-    if (this.state.seconds === 0) {
+    if (parseInt(this.state.seconds) < 0) {
       clearInterval(this.timer)
       this.timer = 0
     }
@@ -231,8 +244,8 @@ export default class Game extends Component {
         targetImg,
       })
       const { gameId, startTime, endTime, initTime } = res.data
-      const timeNow = new Date()
-      const timeToGameStart = (Date.parse(startTime) - Date.parse(timeNow)) / 1000
+      const timeNow = await axios.get('/api/globalGame/time')
+      const timeToGameStart = (Date.parse(startTime) - Date.parse(timeNow.data)) / 1000
       this.setState({
         gameId,
         start,
@@ -356,9 +369,10 @@ export default class Game extends Component {
       finished,
       inGame,
       time,
+      postgame,
     } = this.state
     const { won } = userStats
-    console.log(this.state)
+    console.log(this.state.postgame)
     // pregame view
     return (
       <div id="container">
@@ -388,6 +402,8 @@ export default class Game extends Component {
             targetImg={targetImg}
             target={target}
             pregame={pregame}
+            postgame={postgame}
+            finished={finished}
             joinGlobalGame={this.joinGlobalGame}
           />
         )}

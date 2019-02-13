@@ -21,15 +21,24 @@ router.get('/', async (req, res, next) => {
     const start = titleize(startArticle)
     const target = titleize(targetArticle)
     const startArticleData = await axios.get(
-      `https://en.wikipedia.org/api/rest_v1/page/summary/${startArticle}`
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURI(startArticle)}`
     )
     const targetArticleData = await axios.get(
-      `https://en.wikipedia.org/api/rest_v1/page/summary/${targetArticle}`
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURI(targetArticle)}`
     )
+    let startImg, targetImg
     const startSummary = startArticleData.data.extract
     const targetSummary = targetArticleData.data.extract
-    const startImg = startArticleData.data.originalimage.source
-    const targetImg = targetArticleData.data.originalimage.source
+    if (!startArticleData.data.originalimage) {
+      startImg = `https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg`
+    } else {
+      startImg = startArticleData.data.originalimage.source
+    }
+    if (!targetArticleData.data.originalimage) {
+      targetImg = `https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg`
+    } else {
+      targetImg = targetArticleData.data.originalimage.source
+    }
     res.send({ start, target, startSummary, targetSummary, startImg, targetImg })
   } catch (err) {
     next(err)

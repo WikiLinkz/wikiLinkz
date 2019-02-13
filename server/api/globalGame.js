@@ -4,9 +4,15 @@ const { getPoints } = require('./utils')
 module.exports = router
 
 // time IN SECONDS BEFORE THE 1000
-const preGameLength = 15 * 1000
-const gameLength = 120 * 1000
+const preGameLength = 5 * 1000
+const gameLength = 5 * 1000
 const gameFinishedBuffer = 5 * 1000
+
+// utility function to get server time
+router.get('/time', (req, res, next) => {
+  const timeNow = new Date()
+  res.send(timeNow)
+})
 
 //creates a new game instance in db, called by generate game
 router.post('/', async (req, res, next) => {
@@ -33,6 +39,7 @@ router.post('/', async (req, res, next) => {
       endTime: endTime,
       initTime: initTime,
       pregame: true,
+      postgame: false,
     })
     res.send({ gameId, startTime, endTime, initTime })
 
@@ -49,6 +56,7 @@ router.post('/', async (req, res, next) => {
     setTimeout(async () => {
       await db.ref('GlobalGame').update({
         finished: true,
+        postgame: true,
       })
       await db.ref('GlobalGame').once('value', async snapshot => {
         const currentGame = snapshot.val()

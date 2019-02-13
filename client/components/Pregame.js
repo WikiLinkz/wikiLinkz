@@ -2,7 +2,6 @@ import React from 'react'
 
 const Pregame = props => {
   const {
-    time,
     start,
     startSummary,
     target,
@@ -11,7 +10,21 @@ const Pregame = props => {
     targetImg,
     pregame,
     joinGlobalGame,
+    postgame,
+    finished,
   } = props
+  let { time } = props
+  if (time.h < 0 || time.m < 0) {
+    time.h = 0
+    time.m = 0
+  }
+  if (time.s <= 0) {
+    time.s = '00'
+  }
+  let displayButton = 'initial'
+  if (postgame) {
+    displayButton = 'none'
+  }
   return (
     <div className="pregame-container">
       <div
@@ -26,7 +39,7 @@ const Pregame = props => {
             </b>
           </h1>
         ) : (
-          <h1>
+          <h1 style={{ display: `${displayButton}` }}>
             Global Game Ends in{' '}
             <b>
               {time.m}:{time.s}
@@ -34,12 +47,17 @@ const Pregame = props => {
           </h1>
         )}
       </div>
-      <button className="pregame-container-join-button" disabled={pregame} onClick={joinGlobalGame}>
+      <button
+        className="pregame-container-join-button"
+        style={{ display: `${displayButton}` }}
+        disabled={pregame}
+        onClick={joinGlobalGame}
+      >
         Join Game
       </button>
       <div
         className="pregame-cards-container"
-        style={{ display: 'flex', justifyContent: 'center', flexDirection: 'row' }}
+        style={{ display: 'flex', justifyContent: 'space-around', flexDirection: 'row' }}
       >
         <div
           className="pregame-container-card"
@@ -47,7 +65,7 @@ const Pregame = props => {
             display: 'flex',
             flexDirection: 'column',
             padding: '20px',
-            maxWidth: '40%',
+            maxWidth: '40vw',
             textAlign: 'center',
           }}
         >
@@ -64,9 +82,7 @@ const Pregame = props => {
             }}
           >
             <img src={startImg} style={{ width: 'auto', maxHeight: '300px' }} />
-            <p style={{ textAlign: 'center' }}>
-              <b>Summary:</b> {startSummary}{' '}
-            </p>
+            <p style={{ textAlign: 'center' }}>{startSummary} </p>
           </div>
         </div>
         <div
@@ -75,7 +91,7 @@ const Pregame = props => {
             display: 'flex',
             flexDirection: 'column',
             padding: '20px',
-            maxWidth: '40%',
+            maxWidth: '40vw',
             textAlign: 'center',
           }}
         >
@@ -92,9 +108,7 @@ const Pregame = props => {
             }}
           >
             <img src={targetImg} style={{ width: 'auto', maxHeight: '300px' }} />
-            <p style={{ textAlign: 'center' }}>
-              <b>Summary:</b> {targetSummary}{' '}
-            </p>
+            <p style={{ textAlign: 'center' }}>{targetSummary} </p>
           </div>
         </div>
       </div>
