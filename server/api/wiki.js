@@ -8,13 +8,29 @@ router.get('/', async (req, res, next) => {
   try {
     // Get top articles of the day from WikiPedia
     const date = getDate()
-    const topArticles = await axios.get(`https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia.org/all-access/${date[0]}/${date[1]}/${date[2]}`)
+    const topArticles = await axios.get(
+      `https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia.org/all-access/${
+        date[0]
+      }/${date[1]}/${date[2]}`
+    )
     const articles = topArticles.data.items[0].articles
     // Assign random top article to start and target articles of the game
     const randomNums = getRandomNums()
-    const start = titleize(articles[randomNums[0]].article)
-    const target = titleize(articles[randomNums[1]].article)
-    res.send({ start, target })
+    const startArticle = articles[randomNums[0]].article
+    const targetArticle = articles[randomNums[1]].article
+    const start = titleize(startArticle)
+    const target = titleize(targetArticle)
+    const startArticleData = await axios.get(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${startArticle}`
+    )
+    const targetArticleData = await axios.get(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${targetArticle}`
+    )
+    const startSummary = startArticleData.data.extract
+    const targetSummary = targetArticleData.data.extract
+    const startImg = startArticleData.data.originalimage.source
+    const targetImg = targetArticleData.data.originalimage.source
+    res.send({ start, target, startSummary, targetSummary, startImg, targetImg })
   } catch (err) {
     next(err)
   }
@@ -27,15 +43,17 @@ router.get('/:title', async (req, res, next) => {
     // we can't do .replace(/,/g, '') here because some titles have commas!
     // => perhaps store in our db without commas?
     // encodeURI will make sure accents are encoded correctly
-    const response = await axios.get
-      (`https://en.wikipedia.org/api/rest_v1/page/html/${encodeURI(title)}`)
+    const response = await axios.get(
+      `https://en.wikipedia.org/api/rest_v1/page/html/${encodeURI(title)}`
+    )
     res.send(response.data)
   } catch (err) {
     // if above errors, find the correct path using wiki error response
     const fixedTitle = err.response.request._options.path
     try {
-      const fixedResponse = await axios.get
-        (`https://en.wikipedia.org/api/rest_v1/page/html${fixedTitle}`)
+      const fixedResponse = await axios.get(
+        `https://en.wikipedia.org/api/rest_v1/page/html${fixedTitle}`
+      )
       res.send(fixedResponse.data)
     } catch (err) {
       next(err)

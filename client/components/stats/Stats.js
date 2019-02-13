@@ -16,10 +16,10 @@ class Stats extends Component {
 
   componentDidMount() {
     let userId
-    auth.onAuthStateChanged(async (user) => {
+    auth.onAuthStateChanged(async user => {
       if (user) {
         userId = user.uid
-        const res = await axios.get(`https://www.wikilinks.app/api/users/${userId}/games`)
+        const res = await axios.get(`/api/users/${userId}/games`)
         const games = res.data
         const gameIds = Object.keys(games)
         const lastTenGames = gameIds.length < 10 ? gameIds : gameIds.slice(gameIds.length - 10)
@@ -33,14 +33,12 @@ class Stats extends Component {
 
   render() {
     return (
-      <div className='container'>
-        <div className='back-button'>
+      <div className="container">
+        <div className="back-button">
           <h1>Clicks and history of last 10 games</h1>
-          <Link to='/'>
-            Back to Game
-          </Link>
+          <Link to="/">Back to Game</Link>
         </div>
-        <div className='chart'>
+        <div className="chart">
           <Chart games={this.state.games} />
         </div>
       </div>

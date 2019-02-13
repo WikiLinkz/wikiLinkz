@@ -18,11 +18,15 @@ router.post('/', async (req, res, next) => {
     const startTime = new Date(timeNow.getTime() + preGameLength).toString()
     const endTime = new Date(timeNow.getTime() + (gameLength + preGameLength)).toString()
     //Create a new game instance in Firebase
-    const { start, target } = req.body
+    const { start, target, startSummary, targetSummary, startImg, targetImg } = req.body
     const gameId = await db.ref('GlobalGame').push().key
     await db.ref('GlobalGame/').set({
       gameId: gameId,
       start: start,
+      startSummary: startSummary,
+      targetSummary: targetSummary,
+      startImg: startImg,
+      targetImg: targetImg,
       target: target,
       clickInfo: true,
       startTime: startTime,
@@ -36,7 +40,7 @@ router.post('/', async (req, res, next) => {
     // after preGameLength (s) set pregame to false
     setTimeout(async () => {
       await db.ref('GlobalGame').update({
-        pregame: false
+        pregame: false,
       })
     }, preGameLength)
 
@@ -44,7 +48,7 @@ router.post('/', async (req, res, next) => {
     // in GlobalGameArchive/gameId/
     setTimeout(async () => {
       await db.ref('GlobalGame').update({
-        finished: true
+        finished: true,
       })
       await db.ref('GlobalGame').once('value', async snapshot => {
         const currentGame = snapshot.val()
@@ -58,13 +62,12 @@ router.post('/', async (req, res, next) => {
             await db.ref(`Users/${user}/gameHistory/${gameId}`).set({
               ...clickData,
               start,
-              target
-            }
-            )
+              target,
+            })
           }
         })
         await db.ref('GlobalGameArchive/' + gameId).set({
-          ...currentGame
+          ...currentGame,
         })
       })
     }, gameLength + preGameLength)
@@ -74,7 +77,7 @@ router.post('/', async (req, res, next) => {
     setTimeout(async () => {
       await db.ref('GlobalGame').remove()
       // add gameFinishedBuffer after game end before deleting
-    }, (gameLength + preGameLength + gameFinishedBuffer))
+    }, gameLength + preGameLength + gameFinishedBuffer)
   } catch (err) {
     next(err)
   }
@@ -96,7 +99,7 @@ router.put('/:userId', async (req, res, next) => {
       won,
       username,
       points,
-      history: historyStr
+      history: historyStr,
     })
     res.sendStatus(201)
   } catch (err) {
