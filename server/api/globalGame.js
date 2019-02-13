@@ -4,8 +4,8 @@ const { getPoints } = require('./utils')
 module.exports = router
 
 // time IN SECONDS BEFORE THE 1000
-const preGameLength = 5 * 1000
-const gameLength = 5 * 1000
+const preGameLength = 15 * 1000
+const gameLength = 120 * 1000
 const gameFinishedBuffer = 5 * 1000
 
 // utility function to get server time

@@ -10,6 +10,13 @@ import './clean.css'
 // import './game.css'
 import NoGame from './components/NoGame'
 
+let hostname
+if (process.env.NODE_ENV === 'production') {
+  hostname = 'https://www.wikilinks.app'
+} else {
+  hostname = 'http://localhost:8080'
+}
+
 export default class Game extends Component {
   constructor() {
     super()
@@ -232,10 +239,10 @@ export default class Game extends Component {
   async generateGlobalGame() {
     try {
       // generate new start and target articles from wiki api
-      const wikiRes = await axios.get(`/api/wiki`)
+      const wikiRes = await axios.get(`${hostname}/api/wiki`)
       const { start, target, startSummary, targetSummary, startImg, targetImg } = wikiRes.data
       // create a new game with timer
-      const res = await axios.post(`/api/globalGame/`, {
+      const res = await axios.post(`${hostname}/api/globalGame/`, {
         start,
         target,
         startSummary,
@@ -244,7 +251,7 @@ export default class Game extends Component {
         targetImg,
       })
       const { gameId, startTime, endTime, initTime } = res.data
-      const timeNow = await axios.get('/api/globalGame/time')
+      const timeNow = await axios.get(`${hostname}/api/globalGame/time`)
       const timeToGameStart = (Date.parse(startTime) - Date.parse(timeNow.data)) / 1000
       this.setState({
         gameId,
@@ -278,9 +285,9 @@ export default class Game extends Component {
       }
       if (userId) {
         // create player instance on the current game
-        await axios.put(`/api/globalGame/${userId}`, userInfo)
+        await axios.put(`${hostname}/api/globalGame/${userId}`, userInfo)
         // add current game's id to user's game history
-        await axios.put(`/api/users/${userId}/${gameId}`, {
+        await axios.put(`${hostname}/api/users/${userId}/${gameId}`, {
           ...userInfo,
           start,
           target,
@@ -289,7 +296,7 @@ export default class Game extends Component {
       }
       // get start html
       const underscoredStart = underTitleize(start)
-      const wikiRes = await axios.get(`/api/wiki/${underscoredStart}`)
+      const wikiRes = await axios.get(`${hostname}/api/wiki/${underscoredStart}`)
       const html = wikiRes.data
       this.setState({
         html,
@@ -310,7 +317,7 @@ export default class Game extends Component {
   async stopGlobalGame() {
     try {
       clearInterval(this.timer)
-      await axios.put(`/api/globalGame/stopGlobalGame`)
+      await axios.put(`${hostname}/api/globalGame/stopGlobalGame`)
       await this.setState({
         finished: true,
         pregame: false,
@@ -342,12 +349,12 @@ export default class Game extends Component {
     this.updateLocalStats(updatedStats)
     // fetch new article
     const title = underTitleize(evt.target.title)
-    const wikiRes = await axios.get(`/api/wiki/${title}`)
+    const wikiRes = await axios.get(`${hostname}/api/wiki/${title}`)
     await this.setState({ html: wikiRes.data })
     const { userId, userStats } = this.state
     if (userId) {
       // update player's db instance
-      await axios.put(`/api/globalGame/${userId}`, { ...userStats })
+      await axios.put(`${hostname}/api/globalGame/${userId}`, { ...userStats })
     }
   }
 
