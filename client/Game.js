@@ -379,7 +379,6 @@ export default class Game extends Component {
       postgame,
     } = this.state
     const { won } = userStats
-    console.log(this.state.postgame)
     // pregame view
     return (
       <div id="container">
