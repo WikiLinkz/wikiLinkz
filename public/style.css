@@ -109,4 +109,5 @@ body {
   border: 2px solid #36c;
   border-radius: 5px;
   min-width: 30vw;
+  max-width: 60vw;
 }
