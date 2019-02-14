@@ -41,6 +41,42 @@ body {
   height: 62px;
 }
 
+#leaderboard-user-stats h3 {
+  font-size: 1.3em;
+  border-bottom: 0px;
+  margin-bottom: 0;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-top: 0;
+  padding-top: 0.5em;
+  padding-bottom: 0.17em;
+}
+
+#leaderboard-user-stats p {
+  margin: 0.4em 0 0.5em 0;
+}
+
+#leaders h3 {
+  font-size: 1.3em;
+  border-bottom: 0px;
+  margin-bottom: 0;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-top: 0;
+  padding-top: 0.5em;
+  padding-bottom: 0.17em;
+}
+
+#leaders p {
+  margin: 0.4em 0 0.5em 0;
+}
+
+#user-info {
+  margin: 0;
+  padding: 0;
+  max-height: 25px;
+}
+
 .global-game-info {
   text-align: right;
   min-width: 60vw;

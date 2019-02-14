@@ -16,6 +16,7 @@
 
 h3 {
   text-align: center;
+  size: 128%;
 }
 
 #click-badge {
@@ -37,4 +38,3 @@ h3 {
   color: #fff;
   background-color: #1ba32b;
 }
-
